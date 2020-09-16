@@ -500,6 +500,13 @@ const likePost = async (page, post, state = {}) => {
   if(page.url() != post && !linkPresent) await page.goto(post);
   await util.wait(1000 * 3);
 
+  // check if post's page exists
+  const postExists = await page.evaluate(() => [...document.querySelectorAll("h2")].reduce((prev, element) => {
+    if(element.innerHTML == "Sorry, this page isn't available.") return false;
+    return prev;
+  }, true));
+  if(!postExists) return errorMessage.postNotFound;
+
   // click on like symbol
   await page.evaluate(() => {
     const elements = document.querySelectorAll("[aria-label='Like']");

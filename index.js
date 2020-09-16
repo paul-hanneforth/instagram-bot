@@ -542,6 +542,10 @@ const unlikePost = async (page, post, state = {}) => {
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
 
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
+
   // click on unlike symbol
   await page.evaluate(() => {
     try {
@@ -574,6 +578,10 @@ const commentPost = async (page, post, comment, state = {}) => {
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
 
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
+
   // enter comment into the text area
   await page.type("[aria-label='Add a comment…']", comment);
   
@@ -605,6 +613,10 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // load comments
   const scroll = async (oldComments, minComments) => {
@@ -659,6 +671,10 @@ const getPost = async (page, post, state = {}) => {
     await page.goto(post);
     await util.wait(1000 * 3);
   }
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // get username of the post's author
   const username = await page.evaluate(() => {

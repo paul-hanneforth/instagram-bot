@@ -23,6 +23,14 @@ const managePopups = async (page) => {
   // intended for 'Turn on Notifications' popup
   await tools.clickOn(page, "button", { innerText: "Not Now"})
 }
+const pageExists = async (page) => {
+  // check if the text "Sorry, this page isn't available." is present on the current page
+  const exists = await page.evaluate(() => [...document.querySelectorAll("h2")].reduce((prev, element) => {
+    if(element.innerHTML == "Sorry, this page isn't available.") return false;
+    return prev;
+  }, true));
+  return exists;
+}
 const screenshot = async (page, path) => {
 
   await page.screenshot({ path });
@@ -501,10 +509,7 @@ const likePost = async (page, post, state = {}) => {
   await util.wait(1000 * 3);
 
   // check if post's page exists
-  const postExists = await page.evaluate(() => [...document.querySelectorAll("h2")].reduce((prev, element) => {
-    if(element.innerHTML == "Sorry, this page isn't available.") return false;
-    return prev;
-  }, true));
+  const postExists = await pageExists(page);
   if(!postExists) return errorMessage.postNotFound;
 
   // click on like symbol

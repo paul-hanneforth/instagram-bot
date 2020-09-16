@@ -2,6 +2,7 @@
 const puppeteer = require("puppeteer");
 const tools = require("./tools.js");
 const util = require("./util.js");
+const { errrorMessage, errorMessage } = require("./message.js"); 
 
 
 /* functions */
@@ -42,9 +43,19 @@ const login = async (page, username, password) => {
     await page.keyboard.down('Tab');
     await page.keyboard.type(password);
 
-    // login
+    // click login button
     await tools.clickOnButton(page, "Log In");
     await util.wait(1000 * 5);
+
+    // check if error happened
+    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+      if(element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
+      return prev;
+    }, false));
+
+    if(wrongPassword) return errorMessage.wrongPassword;
+
+    return { error: false }
 
 }
 const logout = async (page, username) => {

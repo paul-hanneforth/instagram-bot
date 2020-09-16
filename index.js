@@ -72,6 +72,8 @@ const logout = async (page, username) => {
     // click on 'Log Out' Button
     await tools.clickOnDiv(page, "Log Out");
 
+    return { error: false }
+
 }
 // search
 const search = async (page, term, state = {}) => {
@@ -118,7 +120,7 @@ const search = async (page, term, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-    return { results: result, state: newState };
+    return { error: false, results: result, state: newState };
 
 }
 const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
@@ -181,6 +183,7 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
   return {
+    error: false,
     topPosts: formattedTopPosts,
     posts: formattedPosts,
     state: newState
@@ -232,7 +235,7 @@ const getFollowing = async (page, username, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-    return { following: formattedFollowing, state: newState };
+    return { error: false, following: formattedFollowing, state: newState };
 
 }
 const getFollower = async (page, username, state = {}) => {
@@ -277,7 +280,7 @@ const getFollower = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { follower: formattedFollower, state: newState };
+  return { error: false, follower: formattedFollower, state: newState };
 
 }
 const getPosts = async (page, username, minLength = 50, state = {}) => {
@@ -340,7 +343,7 @@ const getPosts = async (page, username, minLength = 50, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { posts: result, state: newState };
+  return { error: false, posts: result, state: newState };
 
 }
 const follow = async (page, username, state = {}) => {
@@ -385,7 +388,7 @@ const follow = async (page, username, state = {}) => {
   // wait
   await util.wait(1000 * 2);
 
-  return { state: Object.assign(newState, { currentSite: page.url() }) }
+  return { error: false, state: Object.assign(newState, { currentSite: page.url() }) }
 
 }
 const unfollow = async (page, username, state = {}) => {
@@ -424,7 +427,7 @@ const unfollow = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const getProfile = async (page, username, state = {}) => {
@@ -474,6 +477,7 @@ const getProfile = async (page, username, state = {}) => {
   })
 
   return {
+    error: false,
     getFollowing: (state) => getFollowing(page, username, state),
     getFollower: (state) => getFollower(page, username, state),
     followerCount,
@@ -513,7 +517,7 @@ const likePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const unlikePost = async (page, post, state = {}) => {
@@ -545,7 +549,7 @@ const unlikePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const commentPost = async (page, post, comment, state = {}) => {
@@ -577,7 +581,7 @@ const commentPost = async (page, post, comment, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const getComments = async (page, post, minComments = 1, state = {}) => {
@@ -629,7 +633,7 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { comments: formattedComments, state: newState };
+  return { error: false, comments: formattedComments, state: newState };
 
 }
 const getPost = async (page, post, state = {}) => {
@@ -654,6 +658,7 @@ const getPost = async (page, post, state = {}) => {
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
   return {
+    error: false,
     author: {
       username,
       getProfile: (state) => getProfile(page, username, state),

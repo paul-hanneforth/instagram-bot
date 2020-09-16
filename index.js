@@ -180,7 +180,9 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
 const getFollowing = async (page, username, state = {}) => {
   
     // check if bot is already on the page of the user
-    if(page.url() != "https://www.instagram.com/" + username + "/") {
+    const alreadyOnUsersPage = page.url() != "https://www.instagram.com/" + username + "/";
+
+    if(!alreadyOnUsersPage) {
 
       // search for username
       const { results } = await search(page, username);

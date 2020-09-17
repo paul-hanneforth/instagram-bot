@@ -2,6 +2,7 @@
 const puppeteer = require("puppeteer");
 const tools = require("./tools.js");
 const util = require("./util.js");
+const { errorMessage } = require("./message.js"); 
 
 
 /* functions */
@@ -21,6 +22,14 @@ const managePopups = async (page) => {
   // clicks on every button that says 'Not Now'
   // intended for 'Turn on Notifications' popup
   await tools.clickOn(page, "button", { innerText: "Not Now"})
+}
+const pageExists = async (page) => {
+  // check if the text "Sorry, this page isn't available." is present on the current page
+  const exists = await page.evaluate(() => [...document.querySelectorAll("h2")].reduce((prev, element) => {
+    if(element.innerHTML == "Sorry, this page isn't available.") return false;
+    return prev;
+  }, true));
+  return exists;
 }
 const screenshot = async (page, path) => {
 
@@ -42,9 +51,19 @@ const login = async (page, username, password) => {
     await page.keyboard.down('Tab');
     await page.keyboard.type(password);
 
-    // login
+    // click login button
     await tools.clickOnButton(page, "Log In");
     await util.wait(1000 * 5);
+
+    // check if error happened
+    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+      if(element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
+      return prev;
+    }, false));
+
+    if(wrongPassword) return errorMessage.wrongPassword;
+
+    return { error: false }
 
 }
 const logout = async (page, username) => {
@@ -60,6 +79,8 @@ const logout = async (page, username) => {
 
     // click on 'Log Out' Button
     await tools.clickOnDiv(page, "Log Out");
+
+    return { error: false }
 
 }
 // search
@@ -107,7 +128,7 @@ const search = async (page, term, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-    return { results: result, state: newState };
+    return { error: false, results: result, state: newState };
 
 }
 const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
@@ -170,6 +191,7 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
   return {
+    error: false,
     topPosts: formattedTopPosts,
     posts: formattedPosts,
     state: newState
@@ -221,7 +243,7 @@ const getFollowing = async (page, username, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-    return { following: formattedFollowing, state: newState };
+    return { error: false, following: formattedFollowing, state: newState };
 
 }
 const getFollower = async (page, username, state = {}) => {
@@ -266,7 +288,7 @@ const getFollower = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { follower: formattedFollower, state: newState };
+  return { error: false, follower: formattedFollower, state: newState };
 
 }
 const getPosts = async (page, username, minLength = 50, state = {}) => {
@@ -329,7 +351,7 @@ const getPosts = async (page, username, minLength = 50, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { posts: result, state: newState };
+  return { error: false, posts: result, state: newState };
 
 }
 const follow = async (page, username, state = {}) => {
@@ -374,7 +396,7 @@ const follow = async (page, username, state = {}) => {
   // wait
   await util.wait(1000 * 2);
 
-  return { state: Object.assign(newState, { currentSite: page.url() }) }
+  return { error: false, state: Object.assign(newState, { currentSite: page.url() }) }
 
 }
 const unfollow = async (page, username, state = {}) => {
@@ -413,7 +435,7 @@ const unfollow = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const getProfile = async (page, username, state = {}) => {
@@ -463,6 +485,7 @@ const getProfile = async (page, username, state = {}) => {
   })
 
   return {
+    error: false,
     getFollowing: (state) => getFollowing(page, username, state),
     getFollower: (state) => getFollower(page, username, state),
     followerCount,
@@ -485,6 +508,10 @@ const likePost = async (page, post, state = {}) => {
   if(page.url() != post && !linkPresent) await page.goto(post);
   await util.wait(1000 * 3);
 
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
+
   // click on like symbol
   await page.evaluate(() => {
     const elements = document.querySelectorAll("[aria-label='Like']");
@@ -502,7 +529,7 @@ const likePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const unlikePost = async (page, post, state = {}) => {
@@ -514,6 +541,10 @@ const unlikePost = async (page, post, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // click on unlike symbol
   await page.evaluate(() => {
@@ -534,7 +565,7 @@ const unlikePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const commentPost = async (page, post, comment, state = {}) => {
@@ -546,6 +577,10 @@ const commentPost = async (page, post, comment, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // enter comment into the text area
   await page.type("[aria-label='Add a comment…']", comment);
@@ -566,7 +601,7 @@ const commentPost = async (page, post, comment, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const getComments = async (page, post, minComments = 1, state = {}) => {
@@ -578,6 +613,10 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // load comments
   const scroll = async (oldComments, minComments) => {
@@ -601,7 +640,8 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
       if(sameComments.length > 1) return false;
       return true;
     });
-    if(filteredComments.length > minComments) return filteredComments;
+    if(filteredComments.length >= minComments) return filteredComments;
+    // click on 'Load more comments' button
     await page.evaluate(() => {
       const loadCommentsButton = document.querySelector("[aria-label='Load more comments']");
       if(loadCommentsButton) loadCommentsButton.click();
@@ -618,7 +658,7 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { comments: formattedComments, state: newState };
+  return { error: false, comments: formattedComments, state: newState };
 
 }
 const getPost = async (page, post, state = {}) => {
@@ -633,6 +673,10 @@ const getPost = async (page, post, state = {}) => {
     await util.wait(1000 * 3);
   }
 
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
+
   // get username of the post's author
   const username = await page.evaluate(() => {
     const element = document.querySelectorAll(".Jv7Aj")[1].children[0];
@@ -643,6 +687,7 @@ const getPost = async (page, post, state = {}) => {
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
   return {
+    error: false,
     author: {
       username,
       getProfile: (state) => getProfile(page, username, state),

@@ -199,10 +199,10 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
 
 }
 // profile
-const getFollowing = async (page, username, state = {}) => {
+const getFollowing = async (page, username, minLength = 400, state = {}) => {
   
     // check if bot is already on the page of the user
-    const alreadyOnUsersPage = page.url() != "https://www.instagram.com/" + username + "/";
+    const alreadyOnUsersPage = page.url() == "https://www.instagram.com/" + username + "/";
 
     if(!alreadyOnUsersPage) {
 
@@ -218,19 +218,41 @@ const getFollowing = async (page, username, state = {}) => {
     // click on 'Following' section
     await tools.clickOn(page, `[href='/${username}/following/']`, {});
 
-    // scroll through the following list to load every element
-    await util.wait(1000 * 2);
-    await page.waitForSelector(".isgrP")
-    await tools.scroll(page, ".isgrP");
+    await util.wait(1000 * 3);
 
-    // convert the following list into an array
-    const following = await page.evaluate(() => {
-      try {
-      const parentElement = document.querySelector(".PZuss");
-      const elements = [...parentElement.children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]);
-      return elements.map((el) => el.innerText);
-      } catch(e) { console.log("Error in getFollowing:", e) }
-    })
+    const loadFollowing = async (minLength, oldComments = [], oldScrollTop) => {
+
+      // wait
+      await util.wait(1000 * 2);
+
+      // scroll down
+      await tools.scrollBy(page, 500, ".isgrP");
+
+      // get loaded comments
+      const loadedFollowingList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
+
+      // concat old comments with newly loaded comments
+      const followingList = loadedFollowingList.concat(oldComments);
+
+      // filter out duplicate comments
+      const filteredFollowingList = followingList.reduce((prev, user) => {
+        if(prev.includes(user)) return prev;
+        return prev.concat([user]);
+      }, []);
+
+      // check if end of following list has been reached
+      const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
+      if(scrollTop == oldScrollTop) return filteredFollowingList;
+
+      // check if enough following users have been loaded
+      if(minLength <= filteredFollowingList.length) return filteredFollowingList;
+
+      // recursively rerun function until enough following users have been loaded
+      const result = await loadFollowing(minLength, filteredFollowingList, scrollTop);
+      return result;
+
+    }
+    const following = await loadFollowing(minLength);
 
     // format array
     const formattedFollowing = following.map((element) => {
@@ -486,7 +508,7 @@ const getProfile = async (page, username, state = {}) => {
 
   return {
     error: false,
-    getFollowing: (state) => getFollowing(page, username, state),
+    getFollowing: (minLength, state) => getFollowing(page, username, minLength, state),
     getFollower: (state) => getFollower(page, username, state),
     followerCount,
     followingCount,
@@ -714,7 +736,7 @@ const launchBot = async (browserArgs) => {
     login: (username, password) => login(page, username, password),
     logout: (username) => logout(page, username),
     search: (term) => search(page, term),
-    getFollowing: (username) => getFollowing(page, username),
+    getFollowing: (username, minLength) => getFollowing(page, username, minLength),
     getFollower: (username) => getFollower(page, username),
     getPosts: (username, minLength) => getPosts(page, username, minLength),
     follow: (username) => follow(page, username),

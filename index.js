@@ -640,7 +640,8 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
       if(sameComments.length > 1) return false;
       return true;
     });
-    if(filteredComments.length > minComments) return filteredComments;
+    if(filteredComments.length >= minComments) return filteredComments;
+    // click on 'Load more comments' button
     await page.evaluate(() => {
       const loadCommentsButton = document.querySelector("[aria-label='Load more comments']");
       if(loadCommentsButton) loadCommentsButton.click();

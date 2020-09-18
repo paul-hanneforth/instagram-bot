@@ -231,10 +231,10 @@ const getFollowing = async (page, username, minLength = 400, state = {}) => {
       // get loaded comments
       const loadedFollowingList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
 
-      // concat old comments with newly loaded comments
+      // concat old followingList with newly loaded followingList
       const followingList = loadedFollowingList.concat(oldList);
 
-      // filter out duplicate comments
+      // filter out duplicate following users
       const filteredFollowingList = followingList.reduce((prev, user) => {
         if(prev.includes(user)) return prev;
         return prev.concat([user]);
@@ -301,23 +301,23 @@ const getFollower = async (page, username, minLength = 400, state = {}) => {
     // get loaded comments
     const loadedFollowerList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
 
-    // concat old comments with newly loaded comments
+    // concat old followerList with newly loaded follower
     const followerList = loadedFollowerList.concat(oldList);
 
-    // filter out duplicate comments
+    // filter out duplicate follower
     const filteredFollowerList = followerList.reduce((prev, user) => {
       if(prev.includes(user)) return prev;
       return prev.concat([user]);
     }, []);
 
-    // check if end of following list has been reached
+    // check if end of follower list has been reached
     const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
     if(scrollTop == oldScrollTop) return filteredFollowerList;
 
-    // check if enough following users have been loaded
+    // check if enough follower users have been loaded
     if(minLength <= filteredFollowerList.length) return filteredFollowerList;
 
-    // recursively rerun function until enough following users have been loaded
+    // recursively rerun function until enough follower users have been loaded
     const result = await loadFollower(minLength, filteredFollowerList, scrollTop);
     return result;
 
@@ -666,9 +666,15 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   if(!postExists) return errorMessage.postNotFound;
 
   // load comments
-  const scroll = async (oldComments, minComments) => {
+  const loadComments = async (oldComments, minComments, oldScrollTop = 0) => {
+
+    // wait
+    await util.wait(1000 * 2);
+
+    // scroll
     await tools.scrollBy(page, 1000, ".XQXOT");
-    await util.wait(1000 * 1);
+
+    // get loaded comments
     const loadedComments = await page.evaluate(() => {
       const box = document.querySelector(".XQXOT");
       const elements = [...box.querySelectorAll(".C4VMK")];
@@ -680,24 +686,38 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
       })
       return comments;
     })
+
+    // concat old comments with newly loaded comments
     const comments = oldComments.concat(loadedComments);
-    // remove duplicates
-    const filteredComments = comments.filter((comment) => {
-      const sameComments = comments.filter((value) => value.text == comment.text && value.username == comment.username);
-      if(sameComments.length > 1) return false;
-      return true;
-    });
-    if(filteredComments.length >= minComments) return filteredComments;
+
+    // filter out duplicate comments
+    const filteredComments = comments.reduce((prev, user) => {
+      if(prev.text == user.text && prev.username == user.username) return prev;
+      return prev.concat([user]);
+    }, []);
+
     // click on 'Load more comments' button
     await page.evaluate(() => {
       const loadCommentsButton = document.querySelector("[aria-label='Load more comments']");
       if(loadCommentsButton) loadCommentsButton.click();
     })
-    await util.wait(1000 * 1);
-    const result = await scroll(filteredComments, minComments);
+
+    // wait
+    await util.wait(1000 * 2);
+
+    // check if enough following users have been loaded
+    if(minComments <= filteredComments.length) return filteredComments;
+
+    // check if end of comment list has been reached
+    const scrollTop = await page.evaluate(() => document.querySelector(".XQXOT").scrollTop);
+    if(scrollTop == oldScrollTop) return filteredComments;
+
+    // recursively rerun function until enough comments have been loaded
+    const result = await loadComments(filteredComments, minComments, scrollTop);
     return result;
+
   }
-  const comments = await scroll([], minComments);
+  const comments = await loadComments([], minComments);
 
   // add getAuthor func to result
   const formattedComments = comments.map((comment) => Object.assign(comment, { author: { username: comment.username, getProfile: (state) => getProfile(page, comment.username, state) } }));

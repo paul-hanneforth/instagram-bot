@@ -1,3 +1,5 @@
+const util = require("./util.js");
+
 const newPage = async (browser, url) => {
     // create page
     const page = await browser.newPage();
@@ -75,6 +77,45 @@ const scroll = async (page, boxSelector) => {
         await scroll(box, box.scrollTop);
     }, boxSelector)
 }
+const loadElementsFromList = async (page, boxSelector, fetchFunction, compareFunction, minElements) => {
+
+    const load = async (minElements, oldElementList = [], oldScrollTop) => {
+
+        // wait
+        await util.wait(1000 * 2);
+
+        // scroll down
+        await scrollBy(page, 500, boxSelector);
+
+        // get loaded elements
+        const loadedElements = await page.evaluate(fetchFunction);
+
+        // concat oldElementList with new elementList
+        const elementList = oldElementList.concat(loadedElements);
+
+        // filter out duplicate elements
+        const filteredElementList = elementList.reduce((prev, element) => {
+            if(compareFunction(prev, element)) return prev;
+            return prev.concat([element]);
+        }, []);
+
+        // check if end of follower list has been reached
+        const scrollTop = await page.evaluate((boxSelector) => document.querySelector(boxSelector).scrollTop, boxSelector);
+        if(scrollTop == oldScrollTop) return filteredElementList;
+
+        // check if enough elements have been loaded
+        if(minElements <= filteredElementList.length) return filteredElementList;
+
+        // recursively rerun function until enough elements have been loaded
+        const result = await load(minElements, filteredElementList, scrollTop);
+        return result;
+
+    }
+    const result = await load(minElements);
+
+    return result;
+
+}
 
 module.exports = {
     newPage,
@@ -84,5 +125,6 @@ module.exports = {
     clickOnButton,
     clickOnDiv,
     scroll,
-    scrollBy
+    scrollBy,
+    loadElementsFromList
 }

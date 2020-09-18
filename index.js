@@ -290,39 +290,11 @@ const getFollower = async (page, username, minLength = 400, state = {}) => {
 
   await util.wait(1000 * 3);
 
-  const loadFollower = async (minLength, oldList = [], oldScrollTop) => {
+  // load follower
+  const getLoadedFollower = () => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText)
+  const compareFunction = (prev, user) => prev.includes(user);
 
-    // wait
-    await util.wait(1000 * 2);
-
-    // scroll down
-    await tools.scrollBy(page, 500, ".isgrP");
-
-    // get loaded comments
-    const loadedFollowerList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
-
-    // concat old followerList with newly loaded follower
-    const followerList = loadedFollowerList.concat(oldList);
-
-    // filter out duplicate follower
-    const filteredFollowerList = followerList.reduce((prev, user) => {
-      if(prev.includes(user)) return prev;
-      return prev.concat([user]);
-    }, []);
-
-    // check if end of follower list has been reached
-    const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
-    if(scrollTop == oldScrollTop) return filteredFollowerList;
-
-    // check if enough follower users have been loaded
-    if(minLength <= filteredFollowerList.length) return filteredFollowerList;
-
-    // recursively rerun function until enough follower users have been loaded
-    const result = await loadFollower(minLength, filteredFollowerList, scrollTop);
-    return result;
-
-  }
-  const follower = await loadFollower(minLength);
+  const follower = await tools.loadElementsFromList(page, ".isgrP", getLoadedFollower, compareFunction, minLength);
 
   // format array
   const formattedFollower = follower.map((element) => {

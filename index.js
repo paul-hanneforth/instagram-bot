@@ -141,7 +141,7 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   await util.wait(1000 * 5);  
 
   // fetch top posts
-  const loadedPosts = await page.evaluate(() => {
+  const loadedTopPosts = await page.evaluate(() => {
     const elements = [...document.querySelectorAll("a")];
     const posts = elements.filter((element) => element.href.startsWith("https://www.instagram.com/p/"));
     return posts.map((post) => {
@@ -150,7 +150,7 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
       }
     })
   });
-  const topPosts = loadedPosts.filter((post, index) => index < 9);
+  const topPosts = loadedTopPosts.filter((post, index) => index < 9);
 
   // load posts
   const scroll = async (oldPosts, minPosts) => {

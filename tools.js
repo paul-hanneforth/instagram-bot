@@ -100,7 +100,7 @@ const loadElementsFromList = async (page, boxSelector, fetchFunction, compareFun
         }, []);
 
         // check if end of follower list has been reached
-        const scrollTop = await page.evaluate((boxSelector) => document.querySelector(boxSelector).scrollTop, boxSelector);
+        const scrollTop = await page.evaluate((boxSelector) => (boxSelector ? document.querySelector(boxSelector) : document.scrollingElement).scrollTop, boxSelector);
         if(scrollTop == oldScrollTop) return filteredElementList;
 
         // check if enough elements have been loaded

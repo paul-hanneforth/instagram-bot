@@ -137,8 +137,8 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   const { results } = await search(page, hashtag);
 
   // click on search result for the specific hashtag
-  results.forEach((searchResult) => { if(searchResult.username == hashtag) { searchResult.click(); }})
-  await util.wait(1000 * 5);  
+  await Promise.all(results.map(async (searchResult) => { if(searchResult.username == hashtag) { await searchResult.click(); }}));
+  await util.wait(1000 * 8);
 
   // fetch top posts
   const loadedTopPosts = await page.evaluate(() => {
@@ -153,34 +153,26 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   const topPosts = loadedTopPosts.filter((post, index) => index < 9);
 
   // load posts
-  const scroll = async (oldPosts, minPosts) => {
-    await tools.scrollBy(page, 1000);
-    await util.wait(1000 * 1);
-    const loadedPosts = await page.evaluate(() => {
+  const loadPosts = () => {
       const elements = [...document.querySelectorAll("a")];
       const posts = elements.filter((element) => element.href.startsWith("https://www.instagram.com/p/"));
       return posts.map((post) => {
         return {
           "link": post.href
         }
-      })
-    });
-    const posts = oldPosts.concat(loadedPosts);
-    // remove duplicates
-    const filteredPosts = posts.filter((post) => {
-      const samePosts = posts.filter((value) => value.link == post.link);
-      if(samePosts.length > 1) return false;
-      return true;
-    });
-    if(filteredPosts.length > minPosts) return filteredPosts;
-    const result = await scroll(filteredPosts, minPosts);
-    return result;
-  }
-  const posts = await scroll(topPosts, (minPosts + topPosts.length));
+    })
+  };
+  const compareFunction = (prev, post) => prev.link == post.link; 
+
+  const posts = await tools.loadElementsFromList(page, null, loadPosts, compareFunction, (minPosts + topPosts.length));
+
+  // remove topPosts from post array
   const filteredPosts = posts.filter((post) => {
-    const samePosts = posts.filter((value) => value.link == post.link);
-    if(samePosts.length > 1) return false;
-    return true;
+    const topPostsIncludePost = topPosts.reduce((acc, cur) => {
+      if(post.link == cur.link) return true;
+      return acc;
+    }, false);
+    return !topPostsIncludePost;
   });
 
   // add getPost func to result

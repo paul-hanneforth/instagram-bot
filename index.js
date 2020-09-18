@@ -297,30 +297,20 @@ const getPosts = async (page, username, minLength = 50, state = {}) => {
   const possibleMinLength = postsCount > minLength ? minLength : postsCount;
 
   // load posts
-  const scroll = async (oldPosts, minLength) => {
-    await tools.scrollBy(page, 300);
-    await util.wait(1000 * 1);
-    const loadedPosts = await page.evaluate(() => {
-      const elements = [...document.querySelectorAll("a")];
-      const posts = elements.filter((element) => element.href.startsWith("https://www.instagram.com/p/"));
-      return posts.map((post) => {
-        return {
-          "link": post.href
-        }
-      })
-    });
-    const posts = oldPosts.concat(loadedPosts);
-    // remove duplicates
-    const filteredPosts = posts.filter((post) => {
-      const samePosts = posts.filter((value) => value.link == post.link);
-      if(samePosts.length > 1) return false;
-      return true;
-    });
-    if(filteredPosts.length > minLength) return filteredPosts;
-    const result = await scroll(filteredPosts, minLength);
-    return result;
+  const loadPosts = () => {
+    const elements = [...document.querySelectorAll("a")];
+    const posts = elements.filter((element) => element.href.startsWith("https://www.instagram.com/p/"));
+    return posts.map((post) => {
+      return {
+        "link": post.href
+      }
+    })
   }
-  const posts = possibleMinLength == 0 ? [] : await scroll([], (possibleMinLength - 1));
+  const compareFunction = (prev, post) => prev.reduce((acc, cur) => {
+    if(cur.link == post.link) return true;
+    return acc;
+  }, false);
+  const posts = await tools.loadElementsFromList(page, null, loadPosts, compareFunction, (possibleMinLength - 1)); 
 
   // add click function to posts array
   const result = posts.map((post) => {

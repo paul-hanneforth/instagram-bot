@@ -220,7 +220,7 @@ const getFollowing = async (page, username, minLength = 400, state = {}) => {
 
     await util.wait(1000 * 3);
 
-    const loadFollowing = async (minLength, oldComments = [], oldScrollTop) => {
+    const loadFollowing = async (minLength, oldList = [], oldScrollTop) => {
 
       // wait
       await util.wait(1000 * 2);
@@ -232,7 +232,7 @@ const getFollowing = async (page, username, minLength = 400, state = {}) => {
       const loadedFollowingList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
 
       // concat old comments with newly loaded comments
-      const followingList = loadedFollowingList.concat(oldComments);
+      const followingList = loadedFollowingList.concat(oldList);
 
       // filter out duplicate comments
       const filteredFollowingList = followingList.reduce((prev, user) => {
@@ -268,10 +268,13 @@ const getFollowing = async (page, username, minLength = 400, state = {}) => {
     return { error: false, following: formattedFollowing, state: newState };
 
 }
-const getFollower = async (page, username, state = {}) => {
+const getFollower = async (page, username, minLength = 400, state = {}) => {
 
   // check if bot is already on the page of the user
-  if(page.url() != "https://www.instagram.com/" + username + "/") {
+  const alreadyOnUsersPage = page.url() == "https://www.instagram.com/" + username + "/";
+
+  // check if bot is already on the page of the user
+  if(!alreadyOnUsersPage) {
 
     // search for username
     const { results } = await search(page, username);
@@ -285,19 +288,41 @@ const getFollower = async (page, username, state = {}) => {
   // click on 'Followers' section
   await tools.clickOn(page, `[href='/${username}/followers/']`, {});
 
-  // scroll through the following list to load every element
   await util.wait(1000 * 3);
-  await page.waitForSelector(".isgrP")
-  await tools.scroll(page, ".isgrP");
 
-  // convert the follower list into an array
-  const follower = await page.evaluate(() => {
-    try {
-    const parentElement = document.querySelector(".PZuss");
-    const elements = [...parentElement.children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]);
-    return elements.map((el) => el.innerText);
-    } catch(e) { console.log("Error in getFollower func:", e) }
-  })
+  const loadFollower = async (minLength, oldList = [], oldScrollTop) => {
+
+    // wait
+    await util.wait(1000 * 2);
+
+    // scroll down
+    await tools.scrollBy(page, 500, ".isgrP");
+
+    // get loaded comments
+    const loadedFollowerList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
+
+    // concat old comments with newly loaded comments
+    const followerList = loadedFollowerList.concat(oldList);
+
+    // filter out duplicate comments
+    const filteredFollowerList = followerList.reduce((prev, user) => {
+      if(prev.includes(user)) return prev;
+      return prev.concat([user]);
+    }, []);
+
+    // check if end of following list has been reached
+    const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
+    if(scrollTop == oldScrollTop) return filteredFollowerList;
+
+    // check if enough following users have been loaded
+    if(minLength <= filteredFollowerList.length) return filteredFollowerList;
+
+    // recursively rerun function until enough following users have been loaded
+    const result = await loadFollower(minLength, filteredFollowerList, scrollTop);
+    return result;
+
+  }
+  const follower = await loadFollower(minLength);
 
   // format array
   const formattedFollower = follower.map((element) => {
@@ -509,7 +534,7 @@ const getProfile = async (page, username, state = {}) => {
   return {
     error: false,
     getFollowing: (minLength, state) => getFollowing(page, username, minLength, state),
-    getFollower: (state) => getFollower(page, username, state),
+    getFollower: (minLength, state) => getFollower(page, username, minLength, state),
     followerCount,
     followingCount,
     follow: (state) => follow(page, username, state),
@@ -737,7 +762,7 @@ const launchBot = async (browserArgs) => {
     logout: (username) => logout(page, username),
     search: (term) => search(page, term),
     getFollowing: (username, minLength) => getFollowing(page, username, minLength),
-    getFollower: (username) => getFollower(page, username),
+    getFollower: (username, minLength) => getFollower(page, username, minLength),
     getPosts: (username, minLength) => getPosts(page, username, minLength),
     follow: (username) => follow(page, username),
     unfollow: (username) => unfollow(page, username),

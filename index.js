@@ -220,39 +220,11 @@ const getFollowing = async (page, username, minLength = 400, state = {}) => {
 
     await util.wait(1000 * 3);
 
-    const loadFollowing = async (minLength, oldList = [], oldScrollTop) => {
+    // load following
+    const getLoadedFollowingList = () => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText)
+    const compareFunction = (prev, user) => prev.includes(user);
 
-      // wait
-      await util.wait(1000 * 2);
-
-      // scroll down
-      await tools.scrollBy(page, 500, ".isgrP");
-
-      // get loaded comments
-      const loadedFollowingList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
-
-      // concat old followingList with newly loaded followingList
-      const followingList = loadedFollowingList.concat(oldList);
-
-      // filter out duplicate following users
-      const filteredFollowingList = followingList.reduce((prev, user) => {
-        if(prev.includes(user)) return prev;
-        return prev.concat([user]);
-      }, []);
-
-      // check if end of following list has been reached
-      const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
-      if(scrollTop == oldScrollTop) return filteredFollowingList;
-
-      // check if enough following users have been loaded
-      if(minLength <= filteredFollowingList.length) return filteredFollowingList;
-
-      // recursively rerun function until enough following users have been loaded
-      const result = await loadFollowing(minLength, filteredFollowingList, scrollTop);
-      return result;
-
-    }
-    const following = await loadFollowing(minLength);
+    const following = await tools.loadElementsFromList(page, ".isgrP", getLoadedFollowingList, compareFunction, minLength);
 
     // format array
     const formattedFollowing = following.map((element) => {

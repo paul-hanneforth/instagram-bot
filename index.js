@@ -2,6 +2,7 @@
 const puppeteer = require("puppeteer");
 const tools = require("./tools.js");
 const util = require("./util.js");
+const { errorMessage } = require("./message.js"); 
 
 
 /* functions */
@@ -21,6 +22,14 @@ const managePopups = async (page) => {
   // clicks on every button that says 'Not Now'
   // intended for 'Turn on Notifications' popup
   await tools.clickOn(page, "button", { innerText: "Not Now"})
+}
+const pageExists = async (page) => {
+  // check if the text "Sorry, this page isn't available." is present on the current page
+  const exists = await page.evaluate(() => [...document.querySelectorAll("h2")].reduce((prev, element) => {
+    if(element.innerHTML == "Sorry, this page isn't available.") return false;
+    return prev;
+  }, true));
+  return exists;
 }
 const screenshot = async (page, path) => {
 
@@ -42,9 +51,19 @@ const login = async (page, username, password) => {
     await page.keyboard.down('Tab');
     await page.keyboard.type(password);
 
-    // login
+    // click login button
     await tools.clickOnButton(page, "Log In");
     await util.wait(1000 * 5);
+
+    // check if error happened
+    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+      if(element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
+      return prev;
+    }, false));
+
+    if(wrongPassword) return errorMessage.wrongPassword;
+
+    return { error: false }
 
 }
 const logout = async (page, username) => {
@@ -60,6 +79,8 @@ const logout = async (page, username) => {
 
     // click on 'Log Out' Button
     await tools.clickOnDiv(page, "Log Out");
+
+    return { error: false }
 
 }
 // search
@@ -107,7 +128,7 @@ const search = async (page, term, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-    return { results: result, state: newState };
+    return { error: false, results: result, state: newState };
 
 }
 const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
@@ -170,6 +191,7 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
   return {
+    error: false,
     topPosts: formattedTopPosts,
     posts: formattedPosts,
     state: newState
@@ -177,10 +199,12 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
 
 }
 // profile
-const getFollowing = async (page, username, state = {}) => {
+const getFollowing = async (page, username, minLength = 400, state = {}) => {
   
     // check if bot is already on the page of the user
-    if(page.url() != "https://www.instagram.com/" + username + "/") {
+    const alreadyOnUsersPage = page.url() == "https://www.instagram.com/" + username + "/";
+
+    if(!alreadyOnUsersPage) {
 
       // search for username
       const { results } = await search(page, username);
@@ -194,19 +218,41 @@ const getFollowing = async (page, username, state = {}) => {
     // click on 'Following' section
     await tools.clickOn(page, `[href='/${username}/following/']`, {});
 
-    // scroll through the following list to load every element
-    await util.wait(1000 * 2);
-    await page.waitForSelector(".isgrP")
-    await tools.scroll(page, ".isgrP");
+    await util.wait(1000 * 3);
 
-    // convert the following list into an array
-    const following = await page.evaluate(() => {
-      try {
-      const parentElement = document.querySelector(".PZuss");
-      const elements = [...parentElement.children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]);
-      return elements.map((el) => el.innerText);
-      } catch(e) { console.log("Error in getFollowing:", e) }
-    })
+    const loadFollowing = async (minLength, oldList = [], oldScrollTop) => {
+
+      // wait
+      await util.wait(1000 * 2);
+
+      // scroll down
+      await tools.scrollBy(page, 500, ".isgrP");
+
+      // get loaded comments
+      const loadedFollowingList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
+
+      // concat old comments with newly loaded comments
+      const followingList = loadedFollowingList.concat(oldList);
+
+      // filter out duplicate comments
+      const filteredFollowingList = followingList.reduce((prev, user) => {
+        if(prev.includes(user)) return prev;
+        return prev.concat([user]);
+      }, []);
+
+      // check if end of following list has been reached
+      const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
+      if(scrollTop == oldScrollTop) return filteredFollowingList;
+
+      // check if enough following users have been loaded
+      if(minLength <= filteredFollowingList.length) return filteredFollowingList;
+
+      // recursively rerun function until enough following users have been loaded
+      const result = await loadFollowing(minLength, filteredFollowingList, scrollTop);
+      return result;
+
+    }
+    const following = await loadFollowing(minLength);
 
     // format array
     const formattedFollowing = following.map((element) => {
@@ -219,13 +265,16 @@ const getFollowing = async (page, username, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-    return { following: formattedFollowing, state: newState };
+    return { error: false, following: formattedFollowing, state: newState };
 
 }
-const getFollower = async (page, username, state = {}) => {
+const getFollower = async (page, username, minLength = 400, state = {}) => {
 
   // check if bot is already on the page of the user
-  if(page.url() != "https://www.instagram.com/" + username + "/") {
+  const alreadyOnUsersPage = page.url() == "https://www.instagram.com/" + username + "/";
+
+  // check if bot is already on the page of the user
+  if(!alreadyOnUsersPage) {
 
     // search for username
     const { results } = await search(page, username);
@@ -239,19 +288,41 @@ const getFollower = async (page, username, state = {}) => {
   // click on 'Followers' section
   await tools.clickOn(page, `[href='/${username}/followers/']`, {});
 
-  // scroll through the following list to load every element
   await util.wait(1000 * 3);
-  await page.waitForSelector(".isgrP")
-  await tools.scroll(page, ".isgrP");
 
-  // convert the follower list into an array
-  const follower = await page.evaluate(() => {
-    try {
-    const parentElement = document.querySelector(".PZuss");
-    const elements = [...parentElement.children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]);
-    return elements.map((el) => el.innerText);
-    } catch(e) { console.log("Error in getFollower func:", e) }
-  })
+  const loadFollower = async (minLength, oldList = [], oldScrollTop) => {
+
+    // wait
+    await util.wait(1000 * 2);
+
+    // scroll down
+    await tools.scrollBy(page, 500, ".isgrP");
+
+    // get loaded comments
+    const loadedFollowerList = await page.evaluate(() => [...document.querySelector(".PZuss").children].map((element) => [...element.querySelectorAll("a")].filter((el) => el.innerText)[0]).map((el) => el.innerText));
+
+    // concat old comments with newly loaded comments
+    const followerList = loadedFollowerList.concat(oldList);
+
+    // filter out duplicate comments
+    const filteredFollowerList = followerList.reduce((prev, user) => {
+      if(prev.includes(user)) return prev;
+      return prev.concat([user]);
+    }, []);
+
+    // check if end of following list has been reached
+    const scrollTop = await page.evaluate(() => document.querySelector(".isgrP").scrollTop);
+    if(scrollTop == oldScrollTop) return filteredFollowerList;
+
+    // check if enough following users have been loaded
+    if(minLength <= filteredFollowerList.length) return filteredFollowerList;
+
+    // recursively rerun function until enough following users have been loaded
+    const result = await loadFollower(minLength, filteredFollowerList, scrollTop);
+    return result;
+
+  }
+  const follower = await loadFollower(minLength);
 
   // format array
   const formattedFollower = follower.map((element) => {
@@ -264,7 +335,7 @@ const getFollower = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { follower: formattedFollower, state: newState };
+  return { error: false, follower: formattedFollower, state: newState };
 
 }
 const getPosts = async (page, username, minLength = 50, state = {}) => {
@@ -327,7 +398,7 @@ const getPosts = async (page, username, minLength = 50, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { posts: result, state: newState };
+  return { error: false, posts: result, state: newState };
 
 }
 const follow = async (page, username, state = {}) => {
@@ -372,7 +443,7 @@ const follow = async (page, username, state = {}) => {
   // wait
   await util.wait(1000 * 2);
 
-  return { state: Object.assign(newState, { currentSite: page.url() }) }
+  return { error: false, state: Object.assign(newState, { currentSite: page.url() }) }
 
 }
 const unfollow = async (page, username, state = {}) => {
@@ -411,7 +482,7 @@ const unfollow = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const getProfile = async (page, username, state = {}) => {
@@ -461,8 +532,9 @@ const getProfile = async (page, username, state = {}) => {
   })
 
   return {
-    getFollowing: (state) => getFollowing(page, username, state),
-    getFollower: (state) => getFollower(page, username, state),
+    error: false,
+    getFollowing: (minLength, state) => getFollowing(page, username, minLength, state),
+    getFollower: (minLength, state) => getFollower(page, username, minLength, state),
     followerCount,
     followingCount,
     follow: (state) => follow(page, username, state),
@@ -483,6 +555,10 @@ const likePost = async (page, post, state = {}) => {
   if(page.url() != post && !linkPresent) await page.goto(post);
   await util.wait(1000 * 3);
 
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
+
   // click on like symbol
   await page.evaluate(() => {
     const elements = document.querySelectorAll("[aria-label='Like']");
@@ -500,7 +576,7 @@ const likePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const unlikePost = async (page, post, state = {}) => {
@@ -512,6 +588,10 @@ const unlikePost = async (page, post, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // click on unlike symbol
   await page.evaluate(() => {
@@ -532,7 +612,7 @@ const unlikePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const commentPost = async (page, post, comment, state = {}) => {
@@ -544,6 +624,10 @@ const commentPost = async (page, post, comment, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // enter comment into the text area
   await page.type("[aria-label='Add a comment…']", comment);
@@ -564,7 +648,7 @@ const commentPost = async (page, post, comment, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { state: newState }
+  return { error: false, state: newState }
 
 }
 const getComments = async (page, post, minComments = 1, state = {}) => {
@@ -576,6 +660,10 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // goto page of the post
   if(page.url() != post) await page.goto(post);
   await util.wait(1000 * 3);
+
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
 
   // load comments
   const scroll = async (oldComments, minComments) => {
@@ -599,7 +687,8 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
       if(sameComments.length > 1) return false;
       return true;
     });
-    if(filteredComments.length > minComments) return filteredComments;
+    if(filteredComments.length >= minComments) return filteredComments;
+    // click on 'Load more comments' button
     await page.evaluate(() => {
       const loadCommentsButton = document.querySelector("[aria-label='Load more comments']");
       if(loadCommentsButton) loadCommentsButton.click();
@@ -616,7 +705,7 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
-  return { comments: formattedComments, state: newState };
+  return { error: false, comments: formattedComments, state: newState };
 
 }
 const getPost = async (page, post, state = {}) => {
@@ -631,6 +720,10 @@ const getPost = async (page, post, state = {}) => {
     await util.wait(1000 * 3);
   }
 
+  // check if post's page exists
+  const postExists = await pageExists(page);
+  if(!postExists) return errorMessage.postNotFound;
+
   // get username of the post's author
   const username = await page.evaluate(() => {
     const element = document.querySelectorAll(".Jv7Aj")[1].children[0];
@@ -641,6 +734,7 @@ const getPost = async (page, post, state = {}) => {
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
   return {
+    error: false,
     author: {
       username,
       getProfile: (state) => getProfile(page, username, state),
@@ -667,8 +761,8 @@ const launchBot = async (browserArgs) => {
     login: (username, password) => login(page, username, password),
     logout: (username) => logout(page, username),
     search: (term) => search(page, term),
-    getFollowing: (username) => getFollowing(page, username),
-    getFollower: (username) => getFollower(page, username),
+    getFollowing: (username, minLength) => getFollowing(page, username, minLength),
+    getFollower: (username, minLength) => getFollower(page, username, minLength),
     getPosts: (username, minLength) => getPosts(page, username, minLength),
     follow: (username) => follow(page, username),
     unfollow: (username) => unfollow(page, username),

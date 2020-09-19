@@ -5,6 +5,11 @@ const util = require("./util.js");
 const { errorMessage } = require("./message.js"); 
 
 
+/* config */
+const bufferTime = 2000;
+// FIX THIS https://www.instagram.com/p/CFU9eIAnkBK/ when writing a comment
+
+
 /* functions */
 const launchBrowser = async (args) => await puppeteer.launch(args);
 const newPage = async (browser, url, language) => {
@@ -36,8 +41,12 @@ const screenshot = async (page, path) => {
   await page.screenshot({ path });
 
 }
+const buffer = async () => util.wait(bufferTime * Math.random());
 // login
 const login = async (page, username, password) => {
+
+    // buffer
+    await buffer();
 
     // goto login page
     await page.goto("https://www.instagram.com/");
@@ -63,10 +72,16 @@ const login = async (page, username, password) => {
 
     if(wrongPassword) return errorMessage.wrongPassword;
 
+    // buffer
+    await buffer();
+
     return { error: false }
 
 }
 const logout = async (page, username) => {
+
+    // buffer
+    await buffer();
 
     // goto instagram page
     await page.goto("https://www.instagram.com/");
@@ -80,11 +95,17 @@ const logout = async (page, username) => {
     // click on 'Log Out' Button
     await tools.clickOnDiv(page, "Log Out");
 
+    // buffer
+    await buffer();
+
     return { error: false }
 
 }
 // search
 const search = async (page, term, state = {}) => {
+
+    // buffer
+    await buffer();
 
     await util.wait(1000 * 4);
     await managePopups(page);
@@ -128,10 +149,16 @@ const search = async (page, term, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
     return { error: false, results: result, state: newState };
 
 }
 const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
+
+  // buffer
+  await buffer();
 
   // search for hashtag
   const { results } = await search(page, hashtag);
@@ -182,6 +209,9 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+  // buffer
+  await buffer();
+
   return {
     error: false,
     topPosts: formattedTopPosts,
@@ -193,6 +223,9 @@ const exploreHashtag = async (page, hashtag, minPosts = 20, state = {}) => {
 // profile
 const getFollowing = async (page, username, minLength = 400, state = {}) => {
   
+    // buffer
+    await buffer();
+
     // check if bot is already on the page of the user
     const alreadyOnUsersPage = page.url() == "https://www.instagram.com/" + username + "/";
 
@@ -229,10 +262,16 @@ const getFollowing = async (page, username, minLength = 400, state = {}) => {
     // update state
     const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
     return { error: false, following: formattedFollowing, state: newState };
 
 }
 const getFollower = async (page, username, minLength = 400, state = {}) => {
+
+  // buffer
+  await buffer();
 
   // check if bot is already on the page of the user
   const alreadyOnUsersPage = page.url() == "https://www.instagram.com/" + username + "/";
@@ -271,10 +310,16 @@ const getFollower = async (page, username, minLength = 400, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+  // buffer
+  await buffer();
+
   return { error: false, follower: formattedFollower, state: newState };
 
 }
 const getPosts = async (page, username, minLength = 50, state = {}) => {
+
+  // buffer
+  await buffer();
 
   // check if bot is already on the page of the user
   if(page.url() != "https://www.instagram.com/" + username + "/") {
@@ -324,10 +369,16 @@ const getPosts = async (page, username, minLength = 50, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+  // buffer
+  await buffer();
+
   return { error: false, posts: result, state: newState };
 
 }
 const follow = async (page, username, state = {}) => {
+
+  // buffer
+  await buffer();
 
   const newState = await (async () => {
     // check if previous site is page of the user
@@ -369,10 +420,16 @@ const follow = async (page, username, state = {}) => {
   // wait
   await util.wait(1000 * 2);
 
+  // buffer
+  await buffer();
+
   return { error: false, state: Object.assign(newState, { currentSite: page.url() }) }
 
 }
 const unfollow = async (page, username, state = {}) => {
+
+    // buffer
+    await buffer();
 
   // check if link to the username's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: "https://www.instagram.com/" + username + "/"})
@@ -408,10 +465,16 @@ const unfollow = async (page, username, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
   return { error: false, state: newState }
 
 }
 const getProfile = async (page, username, state = {}) => {
+
+    // buffer
+    await buffer();
 
   // check if link to the username's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: "https://www.instagram.com/" + username + "/" });
@@ -457,6 +520,9 @@ const getProfile = async (page, username, state = {}) => {
     }
   })
 
+    // buffer
+    await buffer();
+
   return {
     error: false,
     getFollowing: (minLength, state) => getFollowing(page, username, minLength, state),
@@ -473,6 +539,9 @@ const getProfile = async (page, username, state = {}) => {
 // post
 const likePost = async (page, post, state = {}) => {
 
+      // buffer
+      await buffer();
+  
   // check if link to the post's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: post })
   if (linkPresent) await util.wait(1000 * 3);
@@ -502,10 +571,16 @@ const likePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
   return { error: false, state: newState }
 
 }
 const unlikePost = async (page, post, state = {}) => {
+
+      // buffer
+      await buffer();
 
   // check if link to the post's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: post })
@@ -538,10 +613,16 @@ const unlikePost = async (page, post, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
   return { error: false, state: newState }
 
 }
 const commentPost = async (page, post, comment, state = {}) => {
+
+      // buffer
+      await buffer();
 
   // check if link to the post's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: post })
@@ -574,10 +655,16 @@ const commentPost = async (page, post, comment, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
   return { error: false, state: newState }
 
 }
 const getComments = async (page, post, minComments = 1, state = {}) => {
+
+    // buffer
+    await buffer();
 
   // check if link to the post's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: post })
@@ -651,10 +738,16 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
 
+    // buffer
+    await buffer();
+
   return { error: false, comments: formattedComments, state: newState };
 
 }
 const getPost = async (page, post, state = {}) => {
+
+      // buffer
+      await buffer();
 
   // check if link to the post's site is present on the site
   const linkPresent = await tools.clickOnOne(page, "a", { href: post });
@@ -678,6 +771,9 @@ const getPost = async (page, post, state = {}) => {
 
   // update state
   const newState = Object.assign(state, { currentSite: page.url(), previousSite: state.currentSite })
+
+    // buffer
+    await buffer();
 
   return {
     error: false,

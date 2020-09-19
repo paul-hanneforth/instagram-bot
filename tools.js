@@ -62,7 +62,11 @@ const clickOnDiv = async (page, text) => {
 const scrollBy = async (page, scroll, boxSelector) => {
     await evaluate(page, async ({ boxSelector, scroll }) => {
         const box = boxSelector ? document.querySelector(boxSelector) : document.scrollingElement;
-        box.scrollBy(0, scroll);
+        box.scrollBy({
+            top: scroll,
+            left: 0,
+            behavior: "smooth"
+        })
     }, { boxSelector, scroll })
 }
 const scroll = async (page, boxSelector) => {

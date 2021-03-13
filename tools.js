@@ -62,18 +62,14 @@ const clickOnDiv = async (page, text) => {
 const scrollBy = async (page, scroll, boxSelector) => {
     await evaluate(page, async ({ boxSelector, scroll }) => {
         const box = boxSelector ? document.querySelector(boxSelector) : document.scrollingElement;
-        box.scrollBy({
-            top: scroll,
-            left: 0,
-            behavior: "smooth"
-        })
+        box?.scrollBy(0, scroll);
     }, { boxSelector, scroll })
 }
 const scroll = async (page, boxSelector) => {
     await evaluate(page, async (boxSelector) => {
         const box = boxSelector ? document.querySelector(boxSelector) : document.scrollingElement;
         const scroll = async (box, scrollTop) => {
-            box.scrollBy(0, 1000);
+            box?.scrollBy(0, 1000);
             // wait for 1 second
             await new Promise((resolve) => setTimeout(resolve, 1 * 1000));
             if (scrollTop != box.scrollTop) await scroll(box, box.scrollTop);

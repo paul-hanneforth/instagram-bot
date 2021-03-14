@@ -564,6 +564,38 @@ const getProfile = async (page, username, state = {}) => {
     }
   });
 
+  const watchHistories = async () => {
+    try {
+      await page.evaluate(async (util) => {
+        const sleep = (time) =>
+          new Promise((resolve) => setTimeout(resolve, time));
+
+        let histotyButton = document.querySelector('.RR-M-.h5uC0');
+        histotyButton.click();
+        await sleep(1000 * 3);
+
+        let historyOpened = true;
+
+        const nextButton =
+          document.querySelector('.coreSpriteRightChevron') ||
+          document.querySelector('.NnZaL.vWls4');
+
+        if (nextButton) {
+          while (historyOpened) {
+            nextButton.click();
+            await sleep(1000 * 1.5);
+
+            const historyContainer = document.querySelector('.z6Odz');
+          }
+        }
+      });
+      return { error: false };
+    } catch (err) {
+      console.log('Watch history error ', err);
+      return { error: true };
+    }
+  };
+
   return {
     error: false,
     getFollowing: (minLength, state) =>
@@ -575,6 +607,7 @@ const getProfile = async (page, username, state = {}) => {
     follow: (state) => follow(page, username, state),
     unfollow: (state) => unfollow(page, username, state),
     getPosts: (minLength, state) => getPosts(page, username, minLength, state),
+    watchHistories,
     state: updatedState,
   };
 };

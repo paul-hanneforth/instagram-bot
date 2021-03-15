@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer');
 const tools = require('./tools.js');
 const util = require('./util.js');
 const { errorMessage } = require('./message.js');
+const { watchNewHistories } = require('./actions');
 
 /* functions */
 const launchBrowser = async (args) => await puppeteer.launch(args);
@@ -590,7 +591,7 @@ const getProfile = async (page, username, state = {}) => {
 
             const historyContainer = document.querySelector('.z6Odz');
 
-            if(!historyContainer) {
+            if (!historyContainer) {
               historyOpened = false;
             }
           }
@@ -951,6 +952,7 @@ const launchBot = async (browserArgs) => {
     screenshot: (path) => screenshot(page, path),
     getProfile: (username) => getProfile(page, username),
     getPost: (post) => getPost(page, post),
+    watchNewHistories: () => watchNewHistories(page),
   };
 };
 

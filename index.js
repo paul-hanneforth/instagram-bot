@@ -571,6 +571,9 @@ const getProfile = async (page, username, state = {}) => {
           new Promise((resolve) => setTimeout(resolve, time));
 
         let histotyButton = document.querySelector('.RR-M-.h5uC0');
+        if (!histotyButton) {
+          return;
+        }
         histotyButton.click();
         await sleep(1000 * 3);
 
@@ -586,6 +589,10 @@ const getProfile = async (page, username, state = {}) => {
             await sleep(1000 * 1.5);
 
             const historyContainer = document.querySelector('.z6Odz');
+
+            if(!historyContainer) {
+              historyOpened = false;
+            }
           }
         }
       });

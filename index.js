@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const tools = require('./tools.js');
 const util = require('./util.js');
 const { errorMessage } = require('./message.js');
-const { watchNewHistories } = require('./actions');
+const { watchNewHistories, likeNewPosts } = require('./actions');
 
 /* functions */
 const launchBrowser = async (args) => await puppeteer.launch(args);
@@ -953,6 +953,7 @@ const launchBot = async (browserArgs) => {
     getProfile: (username) => getProfile(page, username),
     getPost: (post) => getPost(page, post),
     watchNewHistories: () => watchNewHistories(page),
+    likeNewPosts: () => likeNewPosts(page),
   };
 };
 

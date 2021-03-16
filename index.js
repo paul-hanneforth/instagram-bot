@@ -952,7 +952,7 @@ const launchBot = async (browserArgs) => {
     screenshot: (path) => screenshot(page, path),
     getProfile: (username) => getProfile(page, username),
     getPost: (post) => getPost(page, post),
-    watchNewHistories: () => watchNewHistories(page),
+    watchNewHistories: (max) => watchNewHistories(page, max),
     likeNewPosts: () => likeNewPosts(page),
   };
 };

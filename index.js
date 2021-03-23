@@ -700,54 +700,55 @@ const unlikePost = async (page, post, state = {}) => {
 
   return { error: false, state: newState };
 };
-const commentPost = async (page, post, comment, state = {}) => {
-  try {
-    // check if link to the post's site is present on the site
-    const linkPresent = await tools.clickOnOne(page, 'a', { href: post });
-    if (linkPresent) await util.wait(1000 * 3);
-
-    // goto page of the post
-    if (page.url() != post) await page.goto(post);
-    await util.wait(1000 * 3);
-
-    // check if post's page exists
-    const postExists = await pageExists(page);
-    if (!postExists) return errorMessage.postNotFound;
-
-    // enter comment into the text area
-    await page.type("[aria-label='Add a comment…']", comment);
-
-    // click on Post button
-    await tools.clickOn(page, 'button', { innerHTML: 'Post' });
-
-    // click on close button
-    if (linkPresent)
-      await page.evaluate(() => {
-        try {
-          const elements = [
-            ...document.querySelectorAll("[aria-label='Close']"),
-          ];
-          elements[0].parentNode.click();
-        } catch (e) {
-          console.log('Error in commentPost: ' + e);
-        }
-      });
-
+const commentPost = async (page, post, comment, state = {}) =>
+  new Promise(async (resolve) => {
     // update state
     const newState = Object.assign(state, {
       currentSite: page.url(),
       previousSite: state.currentSite,
     });
-    return { error: false, state: newState };
-  } catch (e) {
-    console.log('Error in loadComments ', e);
-    const newState = Object.assign(state, {
-      currentSite: page.url(),
-      previousSite: state.currentSite,
-    });
-    return { error: true, state: newState };
-  }
-};
+
+    setTimeout(() => {
+      resolve({ error: true, state: newState })
+    }, 30 * 1000)
+
+    try {
+      // check if link to the post's site is present on the site
+      const linkPresent = await tools.clickOnOne(page, 'a', { href: post });
+      if (linkPresent) await util.wait(1000 * 3);
+
+      // goto page of the post
+      if (page.url() != post) await page.goto(post);
+      await util.wait(1000 * 3);
+
+      // check if post's page exists
+      const postExists = await pageExists(page);
+      if (!postExists) return errorMessage.postNotFound;
+
+      // enter comment into the text area
+      await page.type("[aria-label='Add a comment…']", comment);
+
+      // click on Post button
+      await tools.clickOn(page, 'button', { innerHTML: 'Post' });
+
+      // click on close button
+      if (linkPresent)
+        await page.evaluate(() => {
+          try {
+            const elements = [
+              ...document.querySelectorAll("[aria-label='Close']"),
+            ];
+            elements[0].parentNode.click();
+          } catch (e) {
+            console.log('Error in linkPresent: ' + e);
+          }
+        });
+      resolve({ error: false, state: newState });
+    } catch (e) {
+      console.log('Error in commentPost ', e);
+      resolve({ error: true, state: newState });
+    }
+  });
 const getComments = async (page, post, minComments = 1, state = {}) => {
   try {
     // check if link to the post's site is present on the site
@@ -781,17 +782,12 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
           const infoElement = element.querySelector('.C4VMK');
           const likeButton = element.querySelector('.ZQScA');
           const username = infoElement.querySelector('a').innerText;
-          console.log({ likeButton, infoElement, element });
           likeButton?.classList.add(username);
           return {
             username,
             text: infoElement.querySelectorAll('span')[
             infoElement.querySelectorAll('span').length - 1
               ].innerText,
-            // like: async () => {
-            //   await util.wait(1000 * 2);
-            //   likeButton.click()
-            // }
           };
         });
         return comments;
@@ -852,11 +848,14 @@ const getComments = async (page, post, minComments = 1, state = {}) => {
         like: async () => {
           await util.wait(1000 * 2);
           const commentSelector = `.ZQScA.${comment.username}`;
-          await page.evaluate((commentSelector) => {
+          return await page.evaluate((commentSelector) => {
             try {
               const likeButton = document.querySelector(commentSelector);
               likeButton?.click();
+              console.log({ likeButton, commentSelector })
+              return { error: !Boolean(likeButton) }
             } catch (e) {
+              return { error: true }
               console.log('Error in like comment ', e);
             }
           }, commentSelector);

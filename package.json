@@ -1,6 +1,6 @@
 {
   "name": "@paul-hanneforth/instagram-bot",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,11 +16,10 @@
   ],
   "author": "Paul Hanneforth",
   "license": "ISC",
-  "dependencies": {
-    "puppeteer": "^5.2.1"
+  "devDependencies": {
+    "eslint": "^7.25.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/paul-hanneforth/instagram-bot.git"
+  "dependencies": {
+    "puppeteer": "^9.0.0"
   }
 }

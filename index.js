@@ -41,6 +41,11 @@ class InstagramBot {
      * @param {puppeteer.Browser} browser 
      * @param {puppeteer.Page} page
      * @param {Boolean} [ authenticated = false ]
+     * @property {puppeteer.Browser} browser
+     * @property {puppeteer.Page} page
+     * @property {Stack} stack
+     * @property {Boolean} authenticated
+     * @property {String} username
      */
     constructor(browser, page, authenticated = false) {
         this.browser = browser;

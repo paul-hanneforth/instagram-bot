@@ -182,6 +182,7 @@ const search = async (page, searchTerm) => {
 /**
  * 
  * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
+ * @returns {Promise<any>}
  */
 const goto = async (page, identifier) => {
     try {

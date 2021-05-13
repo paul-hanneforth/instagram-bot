@@ -445,7 +445,7 @@ const getPostDetails = async (page, identifier) => {
 
     const likesStr = await page.evaluate((postId) => {
         try {
-            return [...document.querySelectorAll("a")].reverse().find(a => a.href == `https://www.instagram.com/p/${postId}/liked_by/`).children[0].innerText, postId;
+            return [...document.querySelectorAll("a")].reverse().find(a => a.href == `https://www.instagram.com/p/${postId}/liked_by/`).children[0].innerText;
         } catch(e) {
             return null;
         }

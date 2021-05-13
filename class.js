@@ -81,13 +81,16 @@ class PostDetails extends Post {
      * 
      * @param {String} link 
      * @param {User} author 
+     * @param {Number} [ likes ]
      * @property {String} link
      * @property {User} author
+     * @property {Number} [ likes ]
      */
-    constructor(link, author) {
+    constructor(link, author, likes) {
         super(link);
 
         this.author = author;
+        this.likes = likes;
     }
 
 }

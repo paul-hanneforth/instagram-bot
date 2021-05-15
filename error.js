@@ -5,6 +5,9 @@ class IBError extends Error {
      * @param {Number} code 
      * @param {String} message 
      * @param {Error} [error]
+     * @property {Number} code
+     * @property {String} errorMessage
+     * @property {Error} [parentError]
      */
     constructor(code, message, error) {
         super(error ? (error + " -> " + message) : message);
@@ -23,6 +26,10 @@ class IBLoginError extends IBError {
      * @param {String} message 
      * @param {String} username 
      * @param {Error} [error]
+     * @property {Number} code
+     * @property {String} errorMessage
+     * @property {String} username
+     * @property {Error} [parentError]
      */
     constructor(code, message, username, error) {
         super(code, message, error);
@@ -39,6 +46,10 @@ class IBGotoError extends IBError {
      * @param {String} message 
      * @param {String} goal 
      * @param {Error} [error]
+     * @property {Number} code
+     * @property {String} errorMessage
+     * @property {String} goal
+     * @property {Error} [parentError]
      */
     constructor(code, message, goal, error) {
         super(code, message, error);

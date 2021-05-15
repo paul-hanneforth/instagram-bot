@@ -11,8 +11,8 @@ const wait = (time) => new Promise((resolve) => setTimeout(resolve, time));
  * 
  * @param {puppeteer.Page} page 
  * @param {Function} js 
- * @param {*[]} args 
- * @returns 
+ * @param {*} args 
+ * @returns {Promise<any>}
  */
 const evaluate = async (page, js, args) => {
     const result = await page.evaluate(js, args);
@@ -150,7 +150,7 @@ const scroll = async (page, boxSelector) => {
  * @param {Function} fetchFunction 
  * @param {Function} compareFunction 
  * @param {Number} minElements 
- * @returns elements
+ * @returns {Promise<any>} elements
  */
 const loadElementsFromList = async (page, boxSelector, fetchFunction, compareFunction, minElements) => {
 

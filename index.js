@@ -41,6 +41,11 @@ class InstagramBot {
      * @param {puppeteer.Browser} browser 
      * @param {puppeteer.Page} page
      * @param {Boolean} [ authenticated = false ]
+     * @property {puppeteer.Browser} browser
+     * @property {puppeteer.Page} page
+     * @property {Stack} stack
+     * @property {Boolean} authenticated
+     * @property {String} username
      */
     constructor(browser, page, authenticated = false) {
         this.browser = browser;
@@ -149,6 +154,66 @@ class InstagramBot {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.stack.push(() => actions.unfollow(this.page, username));
+    }
+
+    /**
+     * 
+     * @param {String} searchTerm 
+     * @returns {Promise<SearchResult[]>}
+     */
+    async search(searchTerm) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const searchResults = await this.stack.push(() => actions.search(this.page, searchTerm));
+        return searchResults;
+    }
+
+    /**
+     * 
+     * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
+     * @returns {Promise<any>}
+     */
+    async goto(identifier) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        await this.stack.push(() => actions.goto(this.page, identifier));
+    }
+
+    /**
+     * 
+     * @param {String} username 
+     * @returns {Promise<UserDetails>}
+     */
+    async getUserDetails(username) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const userDetails = await this.stack.push(() => actions.getUserDetails(this.page, username));
+        return userDetails;
+    }
+
+    /**
+     * 
+     * @param {String} username
+     * @param {Number} [ minLength = 50 ]
+     * @returns {Promise<Post[]>}
+     */
+    async getPosts(username, minLength = 50) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const posts = await this.stack.push(() => actions.getPosts(this.page, username, minLength));
+        return posts;
+    }
+
+    /**
+     * 
+     * @param {String | Post} identifier this can either be the link of a post or an instance of the Post Class
+     * @returns {PostDetails}
+     */
+    async getPostDetails(identifier) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const postDetails = await this.stack.push(() => actions.getPostDetails(this.page, identifier));
+        return postDetails;
     }
     
 }

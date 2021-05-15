@@ -4,6 +4,7 @@ const popup = require("./popup.js");
 const { errorMessage } = require("./message.js");
 const { IBError, IBLoginError, IBGotoError } = require("./error.js");
 const { SearchResult, User, UserDetails, Post, PostDetails } = require("./class.js");
+const { StringToNumber } = require("./format.js");
 
 /**
  * 
@@ -182,6 +183,7 @@ const search = async (page, searchTerm) => {
 /**
  * 
  * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
+ * @returns {Promise<any>}
  */
 const goto = async (page, identifier) => {
     try {
@@ -436,10 +438,21 @@ const getPostDetails = async (page, identifier) => {
 
     await tools.wait(1000 * 2);
 
+    const postId = link.split("/")[4];
+
     const username = await page.evaluate(() => [...document.querySelectorAll(".sqdOP.yWX7d._8A5w5.ZIAjV")][0].innerText);
     const user = new User(`https://www.instagram.com/${username}/`, username, null);
 
-    return new PostDetails(link, user);
+    const likesStr = await page.evaluate((postId) => {
+        try {
+            return [...document.querySelectorAll("a")].reverse().find(a => a.href == `https://www.instagram.com/p/${postId}/liked_by/`).children[0].innerText;
+        } catch(e) {
+            return null;
+        }
+    }, postId);
+    const likes = likesStr ? StringToNumber(likesStr) : null;
+
+    return new PostDetails(link, user, likes);
 
 };
 

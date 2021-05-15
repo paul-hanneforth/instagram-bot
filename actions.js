@@ -119,6 +119,28 @@ const logout = async (page, username) => {
 /**
  * 
  * @param {puppeteer.Page} page 
+ * @param {String | Post} identifier can either be a link or a Post
+ * @returns {Promise<any>}
+ */
+const likePost = async (page, identifier) => {
+
+    // goto post
+    await goto(page, identifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on like symbol
+    await page.evaluate(() => {
+        const elements = document.querySelectorAll("[aria-label='Like']");
+        elements.forEach((el) => el.parentElement.click());
+    });
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
  * @returns {Promise<Boolean>}
  */
 const isAuthenticated = async (page) => {
@@ -525,5 +547,6 @@ module.exports = {
     getCookies,
     isAuthenticated,
     follow,
-    unfollow
+    unfollow,
+    likePost
 };

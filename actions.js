@@ -232,6 +232,7 @@ const goto = async (page, identifier) => {
                     if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
 
                 } else {
+
                     // search for username / identifier (most of the time it will be a username)
                     const username = identifier instanceof User ? identifier.username : identifier;
                     if(!page.url().startsWith("https://www.instagram.com")) await page.goto("https://www.instagram.com"); 
@@ -240,9 +241,16 @@ const goto = async (page, identifier) => {
                     if(searchResult) {
                         await goto(page, searchResult);
                     } else {
+
                         // goto link manually
                         await page.goto(link);
+
+                        // check if link is valid
+                        const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
+                        if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
+                    
                     }
+
                 }
             }
 

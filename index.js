@@ -108,7 +108,7 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String | User} identifier can either be a username, link or an instance of the User class
+     * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
      * @param {Number} [ minLength = 50 ] 
      * @returns {Promise<User[]>}
      */
@@ -122,7 +122,7 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String | User} identifier can either be a username, link or an instance of the User class
+     * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
      * @param {Number} [ minLength = 50 ] 
      * @returns {Promise<User[]>}
      */
@@ -136,7 +136,7 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String | User} identifier can either be a username, link or an instance of the User class
+     * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
      * @returns {Promise<any>}
      */
     async follow(identifier) {
@@ -147,7 +147,7 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String | User} identifier can either be a username, link or an instance of the User class
+     * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
      * @returns {Promise<any>}
      */
      async unfollow(identifier) {
@@ -181,7 +181,7 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String | User} identifier can either be a username, link or an instance of the User class
+     * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
      * @returns {Promise<UserDetails>}
      */
     async getUserDetails(identifier) {
@@ -193,7 +193,7 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String | User} identifier can either be a username, link or an instance of the User class
+     * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
      * @param {Number} [ minLength = 50 ]
      * @returns {Promise<Post[]>}
      */

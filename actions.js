@@ -241,7 +241,7 @@ const goto = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String | User} identifier can either be a username, link or an instance of the User class
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @param {Number} [minLength = 50]
  * @returns {Promise<User[]>}
  */
@@ -297,7 +297,7 @@ const getFollower = async (page, identifier, minLength = 50) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String | User} identifier can either be a username, link or an instance of the User class
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @param {Number} [minLength = 50]
  * @returns {Promise<User[]>}
  */
@@ -311,6 +311,7 @@ const getFollowing = async (page, identifier, minLength = 50) => {
     // click on 'Following' section
     const username = 
         identifier instanceof User ? identifier.username :
+        identifier instanceof SearchResult ? identifier.text :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
 
     await tools.clickOnElement(page, `[href='/${username}/following/']`, {});
@@ -353,7 +354,7 @@ const getFollowing = async (page, identifier, minLength = 50) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String | User} identifier can either be a username, link or an instance of the User class
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @returns {Promise<UserDetails>}
  */
 const getUserDetails = async (page, identifier) => {
@@ -412,6 +413,7 @@ const getUserDetails = async (page, identifier) => {
 
     const username = 
         identifier instanceof User ? identifier.username :
+        identifier instanceof SearchResult ? identifier.text :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
 
     return new UserDetails(`https://www.instagram.com/${username}/`, username, description, posts, followers, following);
@@ -420,7 +422,7 @@ const getUserDetails = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String | User} identifier can either be a username, link or an instance of the User class
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @returns {Promise<any>}
  */
 const follow = async (page, identifier) => {
@@ -444,7 +446,7 @@ const follow = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String | User} identifier can either be a username, link or an instance of the User class
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @returns {Promise<any>}
  */
 const unfollow = async (page, identifier) => {
@@ -473,7 +475,7 @@ const unfollow = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String | User} identifier can either be a username, link or an instance of the User class
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @param {Number} [ minLength = 50 ]
  * @returns {Promise<Post[]>}
  */

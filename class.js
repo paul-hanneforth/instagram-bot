@@ -40,7 +40,7 @@ class User {
 class UserDetails extends User {
 
     /**
-     * 
+     * @augments User
      * @param {String} link 
      * @param {String} username 
      * @param {String} description 
@@ -78,7 +78,7 @@ class Post {
 class PostDetails extends Post {
 
     /**
-     * 
+     * @augments Post 
      * @param {String} link 
      * @param {User} author 
      * @param {Number} [ likes ]

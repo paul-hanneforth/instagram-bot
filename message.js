@@ -6,7 +6,8 @@ const errorCode = {
     5: "Failed to goto identifier!",
     6: "The search field couldn't be found! It seems like you aren't authenticated!",
     7: "The input field for your credentials couldn't be found!",
-    8: "The page isn't available!"
+    8: "The page isn't available!",
+    9: "Can't comment on post!"
 };
 const errorTemplate = (code) => {
     return {
@@ -22,7 +23,8 @@ const errorMessage = {
     "failedToGotoIdentifier": errorTemplate(5),
     "searchFieldNotFound": errorTemplate(6),
     "inputFieldNotFound": errorTemplate(7),
-    "pageNotAvailable": errorTemplate(8)
+    "pageNotAvailable": errorTemplate(8),
+    "cantCommentPost": errorTemplate(9)
 };
 
 module.exports = { errorMessage };

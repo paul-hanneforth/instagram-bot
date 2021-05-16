@@ -238,6 +238,18 @@ class InstagramBot {
         await this.stack.push(() => actions.unlikePost(this.page, identifier));
     }
 
+    /**
+     * 
+     * @param {String | Post} postIdentifier this can either be the link of a post or an instance of the Post Class
+     * @param {String} comment the text you want to comment on the post
+     * @returns {Promise<any>}
+     */
+    async commentPost(postIdentifier, comment) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        await this.stack.push(() => actions.commentPost(this.page, postIdentifier, comment));
+    }
+
 }
 
 module.exports = InstagramBot;

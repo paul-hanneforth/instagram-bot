@@ -514,6 +514,39 @@ const getPostDetails = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
+ * @param {String | Post} postIdentifier this can either be the link of a post or an instance of the Post Class
+ * @param {String} comment the text you want to comment on the post
+ * @returns {Promise<any>}
+ */
+const commentPost = async (page, postIdentifier, comment) => {
+
+    // goto post
+    await goto(page, postIdentifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // check if comment text area exists
+    try {
+        await page.waitForSelector("[aria-label='Add a comment…']");
+    } catch(e) {
+        throw new IBError(errorMessage.cantCommentPost.code, errorMessage.cantCommentPost.message, e);
+    }
+
+    // enter comment into the text area
+    await page.type("[aria-label='Add a comment…']", comment);
+
+    // click on Post button
+    await tools.clickOnElement(page, "button", { innerHTML: "Post" });
+
+    // wait
+    await tools.wait(1000 * 1);
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
  * @param {String} username 
  * @returns {Promise<any>}
  */
@@ -582,5 +615,6 @@ module.exports = {
     follow,
     unfollow,
     likePost,
-    unlikePost
+    unlikePost,
+    commentPost
 };

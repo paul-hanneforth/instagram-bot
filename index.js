@@ -250,6 +250,19 @@ class InstagramBot {
         await this.stack.push(() => actions.commentPost(this.page, postIdentifier, comment));
     }
 
+    /**
+     * 
+     * @param {String | Post} postIdentifier can either be the link to a post or an instance of the Post class
+     * @param {Number} [ minComments = 5 ] 
+     * @returns {Promise<Comment[]>}
+     */
+    async getPostComments(postIdentifier, minComments = 5) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const comments = await this.stack.push(() => actions.getPostComments(this.page, postIdentifier, minComments));
+        return comments;
+    }
+
 }
 
 module.exports = InstagramBot;

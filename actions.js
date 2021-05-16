@@ -3,7 +3,7 @@ const tools = require("./tools.js");
 const popup = require("./popup.js");
 const { errorMessage } = require("./message.js");
 const { IBError, IBLoginError, IBGotoError } = require("./error.js");
-const { SearchResult, User, UserDetails, Post, PostDetails } = require("./class.js");
+const { SearchResult, User, UserDetails, Post, PostDetails, Comment } = require("./class.js");
 const { StringToNumber } = require("./format.js");
 
 /**
@@ -411,7 +411,7 @@ const getUserDetails = async (page, username) => {
  * @param {String} username 
  * @returns {Promise<any>}
  */
- const follow = async (page, username) => {
+const follow = async (page, username) => {
 
     // goto page of the user
     await goto(page, username);
@@ -555,7 +555,7 @@ const commentPost = async (page, postIdentifier, comment) => {
  * @param {String | Post} identifier can either be a link or a Post
  * @returns {Promise<any>}
  */
- const likePost = async (page, identifier) => {
+const likePost = async (page, identifier) => {
 
     // goto post
     await goto(page, identifier);
@@ -588,6 +588,79 @@ const unlikePost = async (page, identifier) => {
     await page.evaluate(() => [...document.querySelectorAll("[aria-label='Unlike']")].forEach((el) => el.parentElement.click()));
 
 };
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String | Post} postIdentifier can either be the link to a post or an instance of the Post class
+ * @param {Number} [ minComments = 5 ] 
+ * @returns {Promise<Comment[]>}
+ */
+const getPostComments = async (page, postIdentifier, minComments = 5) => {
+
+    // goto post
+    await goto(page, postIdentifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    /**
+     * 
+     * @returns {Promise<Object[]>}
+     */
+    const getLoadedComments = () => page.evaluate(() => {
+        const box = document.querySelector(".XQXOT");
+        const elements = [...box.children].filter((e, i) => i != 0);
+        const loadedComments = elements.map(element => { 
+            const textEl = [...element.querySelectorAll("span")]
+                .filter((span) => span.children.length == 0)
+                .filter((span) => !span.innerText.startsWith("View replies"))
+                .filter((span) => span.innerText != "Verified")[0];
+            const usernameEl = [...element.querySelectorAll("a")].filter((a) => a.children.length == 0)[0];
+            return { text: textEl ? textEl.innerText : null, username: usernameEl ? usernameEl.innerText : null };
+        });
+        return loadedComments;
+    });
+    const loadMoreComments = async () => {
+        // scroll to bottom
+        await tools.scroll(page, ".XQXOT");
+
+        // click on 'Load more comments' button
+        await page.evaluate(() => {
+            const loadCommentsButton = document.querySelector("[aria-label='Load more comments']");
+            if (loadCommentsButton) loadCommentsButton.click();
+        });
+
+        // wait
+        await tools.wait(1000 * 2);  
+    };
+    const getComments = async (minComments, commentList = []) => {
+        const loadedComments = await getLoadedComments(minComments);
+        const newLoadedCommentsList = loadedComments
+            .concat(commentList)
+            .filter(loadedComment => loadedComment.username && loadedComment.text)
+            .filter((loadedComment, index, self) => self.findIndex(el => el.text == loadedComment.text && el.username == loadedComment.username) === index);
+
+        // check if enough comments has been loaded
+        if(newLoadedCommentsList.length >= minComments) return newLoadedCommentsList;
+
+        // load more comments
+        await loadMoreComments();
+
+        // recursively rerun function until enough comments have been fetched
+        const comments = await getComments(minComments, newLoadedCommentsList);
+        return comments;
+    };
+
+    const loadedComments = await getComments(minComments);
+
+    const post = postIdentifier instanceof Post ? postIdentifier : new Post(postIdentifier);
+    const comments = loadedComments
+        .filter(loadedComment => loadedComment.username && loadedComment.text)
+        .map(loadedComment => new Comment(loadedComment.text, loadedComment.username, post));
+
+    return comments;
+
+};
 
 module.exports = {
     launchBrowser,
@@ -607,5 +680,6 @@ module.exports = {
     unfollow,
     likePost,
     unlikePost,
-    commentPost
+    commentPost,
+    getPostComments
 };

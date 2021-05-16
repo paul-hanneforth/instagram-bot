@@ -95,10 +95,30 @@ class PostDetails extends Post {
 
 }
 
+class Comment {
+
+    /**
+     * 
+     * @param {String} text 
+     * @param {String} username 
+     * @param {Post} post
+     * @property {String} text
+     * @property {String} username
+     * @property {Post} post 
+     */
+    constructor(text, username, post) {
+        this.text = text;
+        this.username = username;
+        this.post = post;
+    }
+
+}
+
 module.exports = {
     SearchResult,
     User,
     UserDetails,
     Post,
-    PostDetails
+    PostDetails,
+    Comment
 };

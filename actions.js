@@ -656,7 +656,7 @@ const getPostComments = async (page, postIdentifier, minComments = 5) => {
     const post = postIdentifier instanceof Post ? postIdentifier : new Post(postIdentifier);
     const comments = loadedComments
         .filter(loadedComment => loadedComment.username && loadedComment.text)
-        .map(loadedComment => new Comment(loadedComment.text, loadedComment.username, post));
+        .map(loadedComment => new Comment(loadedComment.text, new User(`https://www.instagram.com/${loadedComment.username}/`, username), post));
 
     return comments;
 

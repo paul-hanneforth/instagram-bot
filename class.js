@@ -25,10 +25,10 @@ class User {
      * 
      * @param {String} link 
      * @param {String} username 
-     * @param {String} description 
+     * @param {String} [ description ] 
      * @property {String} link
      * @property {String} username
-     * @property {String} description
+     * @property {String} [ description ]
      */
     constructor(link, username, description) {
         this.link = link;
@@ -100,15 +100,15 @@ class Comment {
     /**
      * 
      * @param {String} text 
-     * @param {String} username 
+     * @param {User} author 
      * @param {Post} post
      * @property {String} text
-     * @property {String} username
+     * @property {User} author
      * @property {Post} post 
      */
-    constructor(text, username, post) {
+    constructor(text, author, post) {
         this.text = text;
-        this.username = username;
+        this.author = author;
         this.post = post;
     }
 

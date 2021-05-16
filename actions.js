@@ -241,18 +241,22 @@ const goto = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User} identifier can either be a username, link or an instance of the User class
  * @param {Number} [minLength = 50]
  * @returns {Promise<User[]>}
  */
-const getFollower = async (page, username, minLength = 50) => {
+const getFollower = async (page, identifier, minLength = 50) => {
 
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 2);
 
     // click on 'Followers' section
+    const username = 
+        identifier instanceof User ? identifier.username :
+        identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
+
     await tools.clickOnElement(page, `[href='/${username}/followers/']`, {});
     await tools.wait(1000 * 5);
 
@@ -293,18 +297,22 @@ const getFollower = async (page, username, minLength = 50) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User} identifier can either be a username, link or an instance of the User class
  * @param {Number} [minLength = 50]
  * @returns {Promise<User[]>}
  */
-const getFollowing = async (page, username, minLength = 50) => {
+const getFollowing = async (page, identifier, minLength = 50) => {
 
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 2);
 
     // click on 'Following' section
+    const username = 
+        identifier instanceof User ? identifier.username :
+        identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
+
     await tools.clickOnElement(page, `[href='/${username}/following/']`, {});
     await tools.wait(1000 * 5);
 
@@ -345,13 +353,13 @@ const getFollowing = async (page, username, minLength = 50) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username
+ * @param {String | User} identifier can either be a username, link or an instance of the User class
  * @returns {Promise<UserDetails>}
  */
-const getUserDetails = async (page, username) => {
+const getUserDetails = async (page, identifier) => {
     
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 3);
 
@@ -402,19 +410,23 @@ const getUserDetails = async (page, username) => {
 
     const description = await page.evaluate(() => document.querySelector(".rhpdm") ? document.querySelector(".rhpdm").innerText : null);
 
+    const username = 
+        identifier instanceof User ? identifier.username :
+        identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
+
     return new UserDetails(`https://www.instagram.com/${username}/`, username, description, posts, followers, following);
 
 };
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User} identifier can either be a username, link or an instance of the User class
  * @returns {Promise<any>}
  */
-const follow = async (page, username) => {
+const follow = async (page, identifier) => {
 
     // goto page of the user
-    await goto(page, username);
+    await goto(page, identifier);
 
     // wait
     await tools.wait(1000 * 2);
@@ -432,13 +444,13 @@ const follow = async (page, username) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User} identifier can either be a username, link or an instance of the User class
  * @returns {Promise<any>}
  */
-const unfollow = async (page, username) => {
+const unfollow = async (page, identifier) => {
 
     // goto page of the user
-    await goto(page, username);
+    await goto(page, identifier);
 
     // wait
     await tools.wait(1000 * 2);
@@ -461,14 +473,14 @@ const unfollow = async (page, username) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User} identifier can either be a username, link or an instance of the User class
  * @param {Number} [ minLength = 50 ]
  * @returns {Promise<Post[]>}
  */
-const getPosts = async (page, username, minLength = 50) => {
+const getPosts = async (page, identifier, minLength = 50) => {
 
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 3);
 

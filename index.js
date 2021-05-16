@@ -108,52 +108,52 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String} username 
+     * @param {String | User} identifier can either be a username, link or an instance of the User class
      * @param {Number} [ minLength = 50 ] 
      * @returns {Promise<User[]>}
      */
-    async getFollowing(username, minLength = 50) {
+    async getFollowing(identifier, minLength = 50) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const following = await this.stack.push(() => actions.getFollowing(this.page, username, minLength));
+        const following = await this.stack.push(() => actions.getFollowing(this.page, identifier, minLength));
 
         return following;
     }
 
     /**
      * 
-     * @param {String} username 
+     * @param {String | User} identifier can either be a username, link or an instance of the User class
      * @param {Number} [ minLength = 50 ] 
      * @returns {Promise<User[]>}
      */
-    async getFollower(username, minLength = 50) {
+    async getFollower(identifier, minLength = 50) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const follower = await this.stack.push(() => actions.getFollower(this.page, username, minLength));
+        const follower = await this.stack.push(() => actions.getFollower(this.page, identifier, minLength));
 
         return follower;
     }
 
     /**
      * 
-     * @param {String} username 
+     * @param {String | User} identifier can either be a username, link or an instance of the User class
      * @returns {Promise<any>}
      */
-    async follow(username) {
+    async follow(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.follow(this.page, username));
+        await this.stack.push(() => actions.follow(this.page, identifier));
     }
 
     /**
      * 
-     * @param {String} username 
+     * @param {String | User} identifier can either be a username, link or an instance of the User class
      * @returns {Promise<any>}
      */
-     async unfollow(username) {
+     async unfollow(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.unfollow(this.page, username));
+        await this.stack.push(() => actions.unfollow(this.page, identifier));
     }
 
     /**
@@ -181,26 +181,26 @@ class InstagramBot {
 
     /**
      * 
-     * @param {String} username 
+     * @param {String | User} identifier can either be a username, link or an instance of the User class
      * @returns {Promise<UserDetails>}
      */
-    async getUserDetails(username) {
+    async getUserDetails(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const userDetails = await this.stack.push(() => actions.getUserDetails(this.page, username));
+        const userDetails = await this.stack.push(() => actions.getUserDetails(this.page, identifier));
         return userDetails;
     }
 
     /**
      * 
-     * @param {String} username
+     * @param {String | User} identifier can either be a username, link or an instance of the User class
      * @param {Number} [ minLength = 50 ]
      * @returns {Promise<Post[]>}
      */
-    async getPosts(username, minLength = 50) {
+    async getPosts(identifier, minLength = 50) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const posts = await this.stack.push(() => actions.getPosts(this.page, username, minLength));
+        const posts = await this.stack.push(() => actions.getPosts(this.page, identifier, minLength));
         return posts;
     }
 

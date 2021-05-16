@@ -257,6 +257,7 @@ const getFollower = async (page, identifier, minLength = 50) => {
     // click on 'Followers' section
     const username = 
         identifier instanceof User ? identifier.username :
+        identifier instanceof SearchResult ? identifier.title :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
 
     await tools.clickOnElement(page, `[href='/${username}/followers/']`, {});
@@ -313,7 +314,7 @@ const getFollowing = async (page, identifier, minLength = 50) => {
     // click on 'Following' section
     const username = 
         identifier instanceof User ? identifier.username :
-        identifier instanceof SearchResult ? identifier.text :
+        identifier instanceof SearchResult ? identifier.title :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
 
     await tools.clickOnElement(page, `[href='/${username}/following/']`, {});
@@ -415,7 +416,7 @@ const getUserDetails = async (page, identifier) => {
 
     const username = 
         identifier instanceof User ? identifier.username :
-        identifier instanceof SearchResult ? identifier.text :
+        identifier instanceof SearchResult ? identifier.title :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
 
     return new UserDetails(`https://www.instagram.com/${username}/`, username, description, posts, followers, following);
@@ -672,7 +673,7 @@ const getPostComments = async (page, postIdentifier, minComments = 5) => {
     const post = postIdentifier instanceof Post ? postIdentifier : new Post(postIdentifier);
     const comments = loadedComments
         .filter(loadedComment => loadedComment.username && loadedComment.text)
-        .map(loadedComment => new Comment(loadedComment.text, new User(`https://www.instagram.com/${loadedComment.username}/`, username), post));
+        .map(loadedComment => new Comment(loadedComment.text, new User(`https://www.instagram.com/${loadedComment.username}/`, loadedComment.username), post));
 
     return comments;
 

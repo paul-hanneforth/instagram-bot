@@ -226,7 +226,18 @@ class InstagramBot {
 
         await this.stack.push(() => actions.likePost(this.page, identifier));
     }
-    
+
+    /**
+     * 
+     * @param {String | Post} identifier this can either be the link of a post or an instance of the Post Class
+     * @returns {Promise<any>}
+     */
+    async unlikePost(identifier) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        await this.stack.push(() => actions.unlikePost(this.page, identifier));
+    }
+
 }
 
 module.exports = InstagramBot;

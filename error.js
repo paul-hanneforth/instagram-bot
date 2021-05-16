@@ -44,11 +44,11 @@ class IBGotoError extends IBError {
      * 
      * @param {Number} code 
      * @param {String} message 
-     * @param {String} goal 
+     * @param {any} goal 
      * @param {Error} [error]
      * @property {Number} code
      * @property {String} errorMessage
-     * @property {String} goal
+     * @property {any} goal
      * @property {Error} [parentError]
      */
     constructor(code, message, goal, error) {

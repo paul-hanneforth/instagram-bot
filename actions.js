@@ -141,6 +141,25 @@ const likePost = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
+ * @param {String | Post} identifier can either be the link to a post or an instance of the Post class
+ * @returns {Promise<any>}
+ */
+const unlikePost = async (page, identifier) => {
+
+    // goto post
+    await goto(page, identifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on unlike symbol
+    await page.evaluate(() => [...document.querySelectorAll("[aria-label='Unlike']")].forEach((el) => el.parentElement.click()));
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
  * @returns {Promise<Boolean>}
  */
 const isAuthenticated = async (page) => {
@@ -562,5 +581,6 @@ module.exports = {
     isAuthenticated,
     follow,
     unfollow,
-    likePost
+    likePost,
+    unlikePost
 };

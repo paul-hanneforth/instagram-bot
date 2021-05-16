@@ -96,7 +96,6 @@ const login = async (page, username, password) => {
     if(waitUntilLoggingIn) throw new IBLoginError(errorMessage.waitBeforeLogin.code, errorMessage.waitBeforeLogin.message, username);
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -113,47 +112,6 @@ const logout = async (page, username) => {
 
     // click on 'Log Out' Button
     await tools.clickOnDiv(page, "Log Out");
-
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String | Post} identifier can either be a link or a Post
- * @returns {Promise<any>}
- */
-const likePost = async (page, identifier) => {
-
-    // goto post
-    await goto(page, identifier);
-
-    // wait
-    await tools.wait(1000 * 2);
-
-    // click on like symbol
-    await page.evaluate(() => {
-        const elements = document.querySelectorAll("[aria-label='Like']");
-        elements.forEach((el) => el.parentElement.click());
-    });
-
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String | Post} identifier can either be the link to a post or an instance of the Post class
- * @returns {Promise<any>}
- */
-const unlikePost = async (page, identifier) => {
-
-    // goto post
-    await goto(page, identifier);
-
-    // wait
-    await tools.wait(1000 * 2);
-
-    // click on unlike symbol
-    await page.evaluate(() => [...document.querySelectorAll("[aria-label='Unlike']")].forEach((el) => el.parentElement.click()));
 
 };
 
@@ -332,7 +290,6 @@ const getFollower = async (page, username, minLength = 50) => {
     return follower;
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -385,7 +342,6 @@ const getFollowing = async (page, username, minLength = 50) => {
     return following;
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -449,6 +405,58 @@ const getUserDetails = async (page, username) => {
     return new UserDetails(`https://www.instagram.com/${username}/`, username, description, posts, followers, following);
 
 };
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} username 
+ * @returns {Promise<any>}
+ */
+ const follow = async (page, username) => {
+
+    // goto page of the user
+    await goto(page, username);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on 'Follow' button
+    await tools.clickOnButton(page, "Follow");
+
+    // click on 'Follow Back' button
+    await tools.clickOnButton(page, "Follow Back");
+
+    // wait
+    await tools.wait(1000 * 2);
+
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} username 
+ * @returns {Promise<any>}
+ */
+const unfollow = async (page, username) => {
+
+    // goto page of the user
+    await goto(page, username);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on 'Requested' button if the person hasn't accepted yet
+    await tools.clickOnButton(page, "Requested");
+
+    // click on 'Unfollow' button
+    await tools.clickOnElement(page, "[aria-label='Following']");
+    await tools.wait(1000 * 2);
+
+    // click on 'Unfollow' when Popup appears
+    await tools.clickOnButton(page, "Unfollow");
+
+    // wait
+    await tools.wait(1000 * 2);
+
+};
 
 /**
  * 
@@ -477,7 +485,6 @@ const getPosts = async (page, username, minLength = 50) => {
     return posts;
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -510,7 +517,6 @@ const getPostDetails = async (page, identifier) => {
     return new PostDetails(link, user, likes);
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -543,58 +549,43 @@ const commentPost = async (page, postIdentifier, comment) => {
     await tools.wait(1000 * 1);
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | Post} identifier can either be a link or a Post
  * @returns {Promise<any>}
  */
-const follow = async (page, username) => {
+ const likePost = async (page, identifier) => {
 
-    // goto page of the user
-    await goto(page, username);
-
-    // wait
-    await tools.wait(1000 * 2);
-
-    // click on 'Follow' button
-    await tools.clickOnButton(page, "Follow");
-
-    // click on 'Follow Back' button
-    await tools.clickOnButton(page, "Follow Back");
+    // goto post
+    await goto(page, identifier);
 
     // wait
     await tools.wait(1000 * 2);
+
+    // click on like symbol
+    await page.evaluate(() => {
+        const elements = document.querySelectorAll("[aria-label='Like']");
+        elements.forEach((el) => el.parentElement.click());
+    });
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | Post} identifier can either be the link to a post or an instance of the Post class
  * @returns {Promise<any>}
  */
-const unfollow = async (page, username) => {
+const unlikePost = async (page, identifier) => {
 
-    // goto page of the user
-    await goto(page, username);
-
-    // wait
-    await tools.wait(1000 * 2);
-
-    // click on 'Requested' button if the person hasn't accepted yet
-    await tools.clickOnButton(page, "Requested");
-
-    // click on 'Unfollow' button
-    await tools.clickOnElement(page, "[aria-label='Following']");
-    await tools.wait(1000 * 2);
-
-    // click on 'Unfollow' when Popup appears
-    await tools.clickOnButton(page, "Unfollow");
+    // goto post
+    await goto(page, identifier);
 
     // wait
     await tools.wait(1000 * 2);
+
+    // click on unlike symbol
+    await page.evaluate(() => [...document.querySelectorAll("[aria-label='Unlike']")].forEach((el) => el.parentElement.click()));
 
 };
 

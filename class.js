@@ -25,10 +25,10 @@ class User {
      * 
      * @param {String} link 
      * @param {String} username 
-     * @param {String} description 
+     * @param {String} [ description ] 
      * @property {String} link
      * @property {String} username
-     * @property {String} description
+     * @property {String} [ description ]
      */
     constructor(link, username, description) {
         this.link = link;
@@ -40,7 +40,7 @@ class User {
 class UserDetails extends User {
 
     /**
-     * 
+     * @augments User
      * @param {String} link 
      * @param {String} username 
      * @param {String} description 
@@ -78,7 +78,7 @@ class Post {
 class PostDetails extends Post {
 
     /**
-     * 
+     * @augments Post 
      * @param {String} link 
      * @param {User} author 
      * @param {Number} [ likes ]
@@ -95,10 +95,30 @@ class PostDetails extends Post {
 
 }
 
+class Comment {
+
+    /**
+     * 
+     * @param {String} text 
+     * @param {User} author 
+     * @param {Post} post
+     * @property {String} text
+     * @property {User} author
+     * @property {Post} post 
+     */
+    constructor(text, author, post) {
+        this.text = text;
+        this.author = author;
+        this.post = post;
+    }
+
+}
+
 module.exports = {
     SearchResult,
     User,
     UserDetails,
     Post,
-    PostDetails
+    PostDetails,
+    Comment
 };

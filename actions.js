@@ -3,7 +3,7 @@ const tools = require("./tools.js");
 const popup = require("./popup.js");
 const { errorMessage } = require("./message.js");
 const { IBError, IBLoginError, IBGotoError } = require("./error.js");
-const { SearchResult, User, UserDetails, Post, PostDetails } = require("./class.js");
+const { SearchResult, User, UserDetails, Post, PostDetails, Comment } = require("./class.js");
 const { StringToNumber } = require("./format.js");
 
 /**
@@ -91,12 +91,13 @@ const login = async (page, username, password) => {
         if (element.innerHTML == "Please wait a few minutes before you try again.") return true;
         return prev;
     }, false));
-    
+    const accountDoesntExist = await page.evaluate(() => [...document.querySelectorAll("p")].find(p => p.innerHTML == "The username you entered doesn't belong to an account. Please check your username and try again.") ? true : false);
+
     if(wrongPassword) throw new IBLoginError(errorMessage.incorrectPassword.code, errorMessage.incorrectPassword.message, username);
     if(waitUntilLoggingIn) throw new IBLoginError(errorMessage.waitBeforeLogin.code, errorMessage.waitBeforeLogin.message, username);
+    if(accountDoesntExist ? true : false) throw new IBLoginError(errorMessage.accountNotFound.code, errorMessage.accountNotFound.message, username);
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -201,9 +202,16 @@ const goto = async (page, identifier) => {
 
             if(!linkPresent) {
                 if(identifier == link || identifier instanceof SearchResult || identifier instanceof Post) {
+
                     // if a link or SearchResult was given as an identifier, goto link manually
                     await page.goto(link);
+
+                    // check if link is valid
+                    const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
+                    if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
+
                 } else {
+
                     // search for username / identifier (most of the time it will be a username)
                     const username = identifier instanceof User ? identifier.username : identifier;
                     if(!page.url().startsWith("https://www.instagram.com")) await page.goto("https://www.instagram.com"); 
@@ -212,9 +220,16 @@ const goto = async (page, identifier) => {
                     if(searchResult) {
                         await goto(page, searchResult);
                     } else {
+
                         // goto link manually
                         await page.goto(link);
+
+                        // check if link is valid
+                        const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
+                        if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
+                    
                     }
+
                 }
             }
 
@@ -228,18 +243,23 @@ const goto = async (page, identifier) => {
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @param {Number} [minLength = 50]
  * @returns {Promise<User[]>}
  */
-const getFollower = async (page, username, minLength = 50) => {
+const getFollower = async (page, identifier, minLength = 50) => {
 
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 2);
 
     // click on 'Followers' section
+    const username = 
+        identifier instanceof User ? identifier.username :
+        identifier instanceof SearchResult ? identifier.title :
+        identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
+
     await tools.clickOnElement(page, `[href='/${username}/followers/']`, {});
     await tools.wait(1000 * 5);
 
@@ -277,22 +297,26 @@ const getFollower = async (page, username, minLength = 50) => {
     return follower;
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @param {Number} [minLength = 50]
  * @returns {Promise<User[]>}
  */
-const getFollowing = async (page, username, minLength = 50) => {
+const getFollowing = async (page, identifier, minLength = 50) => {
 
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 2);
 
     // click on 'Following' section
+    const username = 
+        identifier instanceof User ? identifier.username :
+        identifier instanceof SearchResult ? identifier.title :
+        identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
+
     await tools.clickOnElement(page, `[href='/${username}/following/']`, {});
     await tools.wait(1000 * 5);
 
@@ -330,17 +354,16 @@ const getFollowing = async (page, username, minLength = 50) => {
     return following;
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @returns {Promise<UserDetails>}
  */
-const getUserDetails = async (page, username) => {
+const getUserDetails = async (page, identifier) => {
     
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 3);
 
@@ -391,21 +414,78 @@ const getUserDetails = async (page, username) => {
 
     const description = await page.evaluate(() => document.querySelector(".rhpdm") ? document.querySelector(".rhpdm").innerText : null);
 
+    const username = 
+        identifier instanceof User ? identifier.username :
+        identifier instanceof SearchResult ? identifier.title :
+        identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
+
     return new UserDetails(`https://www.instagram.com/${username}/`, username, description, posts, followers, following);
+
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+ * @returns {Promise<any>}
+ */
+const follow = async (page, identifier) => {
+
+    // goto page of the user
+    await goto(page, identifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on 'Follow' button
+    await tools.clickOnButton(page, "Follow");
+
+    // click on 'Follow Back' button
+    await tools.clickOnButton(page, "Follow Back");
+
+    // wait
+    await tools.wait(1000 * 2);
+
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+ * @returns {Promise<any>}
+ */
+const unfollow = async (page, identifier) => {
+
+    // goto page of the user
+    await goto(page, identifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on 'Requested' button if the person hasn't accepted yet
+    await tools.clickOnButton(page, "Requested");
+
+    // click on 'Unfollow' button
+    await tools.clickOnElement(page, "[aria-label='Following']");
+    await tools.wait(1000 * 2);
+
+    // click on 'Unfollow' when Popup appears
+    await tools.clickOnButton(page, "Unfollow");
+
+    // wait
+    await tools.wait(1000 * 2);
 
 };
 
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
  * @param {Number} [ minLength = 50 ]
  * @returns {Promise<Post[]>}
  */
-const getPosts = async (page, username, minLength = 50) => {
+const getPosts = async (page, identifier, minLength = 50) => {
 
     // goto page of user
-    await goto(page, username);
+    await goto(page, identifier);
 
     await tools.wait(1000 * 3);
 
@@ -422,7 +502,6 @@ const getPosts = async (page, username, minLength = 50) => {
     return posts;
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
@@ -455,58 +534,148 @@ const getPostDetails = async (page, identifier) => {
     return new PostDetails(link, user, likes);
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | Post} postIdentifier this can either be the link of a post or an instance of the Post Class
+ * @param {String} comment the text you want to comment on the post
  * @returns {Promise<any>}
  */
-const follow = async (page, username) => {
+const commentPost = async (page, postIdentifier, comment) => {
 
-    // goto page of the user
-    await goto(page, username);
-
-    // wait
-    await tools.wait(1000 * 2);
-
-    // click on 'Follow' button
-    await tools.clickOnButton(page, "Follow");
-
-    // click on 'Follow Back' button
-    await tools.clickOnButton(page, "Follow Back");
+    // goto post
+    await goto(page, postIdentifier);
 
     // wait
     await tools.wait(1000 * 2);
+
+    // check if comment text area exists
+    try {
+        await page.waitForSelector("[aria-label='Add a comment…']");
+    } catch(e) {
+        throw new IBError(errorMessage.cantCommentPost.code, errorMessage.cantCommentPost.message, e);
+    }
+
+    // enter comment into the text area
+    await page.type("[aria-label='Add a comment…']", comment);
+
+    // click on Post button
+    await tools.clickOnElement(page, "button", { innerHTML: "Post" });
+
+    // wait
+    await tools.wait(1000 * 1);
 
 };
-
 /**
  * 
  * @param {puppeteer.Page} page 
- * @param {String} username 
+ * @param {String | Post} identifier can either be a link or a Post
  * @returns {Promise<any>}
  */
-const unfollow = async (page, username) => {
+const likePost = async (page, identifier) => {
 
-    // goto page of the user
-    await goto(page, username);
+    // goto post
+    await goto(page, identifier);
+
+    // wait
+    await tools.wait(1000 * 2);
+
+    // click on like symbol
+    await page.evaluate(() => {
+        const elements = document.querySelectorAll("[aria-label='Like']");
+        elements.forEach((el) => el.parentElement.click());
+    });
+
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String | Post} identifier can either be the link to a post or an instance of the Post class
+ * @returns {Promise<any>}
+ */
+const unlikePost = async (page, identifier) => {
+
+    // goto post
+    await goto(page, identifier);
 
     // wait
     await tools.wait(1000 * 2);
 
-    // click on 'Requested' button if the person hasn't accepted yet
-    await tools.clickOnButton(page, "Requested");
+    // click on unlike symbol
+    await page.evaluate(() => [...document.querySelectorAll("[aria-label='Unlike']")].forEach((el) => el.parentElement.click()));
 
-    // click on 'Unfollow' button
-    await tools.clickOnElement(page, "[aria-label='Following']");
-    await tools.wait(1000 * 2);
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String | Post} postIdentifier can either be the link to a post or an instance of the Post class
+ * @param {Number} [ minComments = 5 ] 
+ * @returns {Promise<Comment[]>}
+ */
+const getPostComments = async (page, postIdentifier, minComments = 5) => {
 
-    // click on 'Unfollow' when Popup appears
-    await tools.clickOnButton(page, "Unfollow");
+    // goto post
+    await goto(page, postIdentifier);
 
     // wait
     await tools.wait(1000 * 2);
+
+    /**
+     * 
+     * @returns {Promise<Object[]>}
+     */
+    const getLoadedComments = () => page.evaluate(() => {
+        const box = document.querySelector(".XQXOT");
+        const elements = [...box.children].filter((e, i) => i != 0);
+        const loadedComments = elements.map(element => { 
+            const textEl = [...element.querySelectorAll("span")]
+                .filter((span) => span.children.length == 0)
+                .filter((span) => !span.innerText.startsWith("View replies"))
+                .filter((span) => span.innerText != "Verified")[0];
+            const usernameEl = [...element.querySelectorAll("a")].filter((a) => a.children.length == 0)[0];
+            return { text: textEl ? textEl.innerText : null, username: usernameEl ? usernameEl.innerText : null };
+        });
+        return loadedComments;
+    });
+    const loadMoreComments = async () => {
+        // scroll to bottom
+        await tools.scroll(page, ".XQXOT");
+
+        // click on 'Load more comments' button
+        await page.evaluate(() => {
+            const loadCommentsButton = document.querySelector("[aria-label='Load more comments']");
+            if (loadCommentsButton) loadCommentsButton.click();
+        });
+
+        // wait
+        await tools.wait(1000 * 2);  
+    };
+    const getComments = async (minComments, commentList = []) => {
+        const loadedComments = await getLoadedComments(minComments);
+        const newLoadedCommentsList = loadedComments
+            .concat(commentList)
+            .filter(loadedComment => loadedComment.username && loadedComment.text)
+            .filter((loadedComment, index, self) => self.findIndex(el => el.text == loadedComment.text && el.username == loadedComment.username) === index);
+
+        // check if enough comments has been loaded
+        if(newLoadedCommentsList.length >= minComments) return newLoadedCommentsList;
+
+        // load more comments
+        await loadMoreComments();
+
+        // recursively rerun function until enough comments have been fetched
+        const comments = await getComments(minComments, newLoadedCommentsList);
+        return comments;
+    };
+
+    const loadedComments = await getComments(minComments);
+
+    const post = postIdentifier instanceof Post ? postIdentifier : new Post(postIdentifier);
+    const comments = loadedComments
+        .filter(loadedComment => loadedComment.username && loadedComment.text)
+        .map(loadedComment => new Comment(loadedComment.text, new User(`https://www.instagram.com/${loadedComment.username}/`, loadedComment.username), post));
+
+    return comments;
 
 };
 
@@ -525,5 +694,9 @@ module.exports = {
     getCookies,
     isAuthenticated,
     follow,
-    unfollow
+    unfollow,
+    likePost,
+    unlikePost,
+    commentPost,
+    getPostComments
 };

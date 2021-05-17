@@ -53,10 +53,10 @@ class User {
      * 
      * @param {String} link 
      * @param {String} username 
-     * @param {String} description 
+     * @param {String} [ description ] 
      * @property {String} link
      * @property {String} username
-     * @property {String} description
+     * @property {String} [ description ]
      */
     constructor(link, username, description) {
         this.link = link;
@@ -68,7 +68,7 @@ class User {
 class UserDetails extends User {
 
     /**
-     * 
+     * @augments User
      * @param {String} link 
      * @param {String} username 
      * @param {String} description 
@@ -106,7 +106,7 @@ class Post {
 class PostDetails extends Post {
 
     /**
-     * 
+     * @augments Post 
      * @param {String} link 
      * @param {User} author 
      * @param {Number} [ likes ]
@@ -123,12 +123,32 @@ class PostDetails extends Post {
 
 }
 
+class Comment {
+
+    /**
+     * 
+     * @param {String} text 
+     * @param {User} author 
+     * @param {Post} post
+     * @property {String} text
+     * @property {User} author
+     * @property {Post} post 
+     */
+    constructor(text, author, post) {
+        this.text = text;
+        this.author = author;
+        this.post = post;
+    }
+
+}
+
 module.exports = {
     SearchResult,
     User,
     UserDetails,
     Post,
-    PostDetails
+    PostDetails,
+    Comment
 };</code></pre>
         </article>
     </section>
@@ -139,13 +159,13 @@ module.exports = {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="IBError.html">IBError</a></li><li><a href="IBGotoError.html">IBGotoError</a></li><li><a href="IBLoginError.html">IBLoginError</a></li><li><a href="InstagramBot.html">InstagramBot</a></li><li><a href="Post.html">Post</a></li><li><a href="PostDetails.html">PostDetails</a></li><li><a href="SearchResult.html">SearchResult</a></li><li><a href="User.html">User</a></li><li><a href="UserDetails.html">UserDetails</a></li></ul><h3>Global</h3><ul><li><a href="global.html#clickOnButton">clickOnButton</a></li><li><a href="global.html#clickOnDiv">clickOnDiv</a></li><li><a href="global.html#clickOnElement">clickOnElement</a></li><li><a href="global.html#clickOnElements">clickOnElements</a></li><li><a href="global.html#dismissCookiePopup">dismissCookiePopup</a></li><li><a href="global.html#elementExists">elementExists</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#getCookies">getCookies</a></li><li><a href="global.html#getFollower">getFollower</a></li><li><a href="global.html#getFollowing">getFollowing</a></li><li><a href="global.html#getPostDetails">getPostDetails</a></li><li><a href="global.html#getPosts">getPosts</a></li><li><a href="global.html#getUserDetails">getUserDetails</a></li><li><a href="global.html#goto">goto</a></li><li><a href="global.html#isAuthenticated">isAuthenticated</a></li><li><a href="global.html#launchBrowser">launchBrowser</a></li><li><a href="global.html#loadElementsFromList">loadElementsFromList</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#logout">logout</a></li><li><a href="global.html#newPage">newPage</a></li><li><a href="global.html#scroll">scroll</a></li><li><a href="global.html#scrollBy">scrollBy</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#StringToNumber">StringToNumber</a></li><li><a href="global.html#unfollow">unfollow</a></li><li><a href="global.html#wait">wait</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Comment.html">Comment</a></li><li><a href="IBError.html">IBError</a></li><li><a href="IBGotoError.html">IBGotoError</a></li><li><a href="IBLoginError.html">IBLoginError</a></li><li><a href="InstagramBot.html">InstagramBot</a></li><li><a href="Post.html">Post</a></li><li><a href="PostDetails.html">PostDetails</a></li><li><a href="SearchResult.html">SearchResult</a></li><li><a href="User.html">User</a></li><li><a href="UserDetails.html">UserDetails</a></li></ul><h3>Global</h3><ul><li><a href="global.html#clickOnButton">clickOnButton</a></li><li><a href="global.html#clickOnDiv">clickOnDiv</a></li><li><a href="global.html#clickOnElement">clickOnElement</a></li><li><a href="global.html#clickOnElements">clickOnElements</a></li><li><a href="global.html#commentPost">commentPost</a></li><li><a href="global.html#dismissCookiePopup">dismissCookiePopup</a></li><li><a href="global.html#elementExists">elementExists</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#getCookies">getCookies</a></li><li><a href="global.html#getFollower">getFollower</a></li><li><a href="global.html#getFollowing">getFollowing</a></li><li><a href="global.html#getPostComments">getPostComments</a></li><li><a href="global.html#getPostDetails">getPostDetails</a></li><li><a href="global.html#getPosts">getPosts</a></li><li><a href="global.html#getUserDetails">getUserDetails</a></li><li><a href="global.html#goto">goto</a></li><li><a href="global.html#isAuthenticated">isAuthenticated</a></li><li><a href="global.html#launchBrowser">launchBrowser</a></li><li><a href="global.html#likePost">likePost</a></li><li><a href="global.html#loadElementsFromList">loadElementsFromList</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#logout">logout</a></li><li><a href="global.html#newPage">newPage</a></li><li><a href="global.html#scroll">scroll</a></li><li><a href="global.html#scrollBy">scrollBy</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#StringToNumber">StringToNumber</a></li><li><a href="global.html#unfollow">unfollow</a></li><li><a href="global.html#unlikePost">unlikePost</a></li><li><a href="global.html#wait">wait</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sat May 15 2021 17:33:10 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon May 17 2021 08:41:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -815,7 +815,7 @@
     
 
     
-    <h4 class="name" id="follow"><span class="type-signature">(async) </span>follow<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
+    <h4 class="name" id="follow"><span class="type-signature">(async) </span>follow<span class="signature">(identifier)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
     
 
     
@@ -855,13 +855,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -871,7 +877,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -1068,7 +1074,7 @@
     
 
     
-    <h4 class="name" id="getFollower"><span class="type-signature">(async) </span>getFollower<span class="signature">(username, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
+    <h4 class="name" id="getFollower"><span class="type-signature">(async) </span>getFollower<span class="signature">(identifier, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
     
 
     
@@ -1112,13 +1118,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -1140,7 +1152,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -1274,7 +1286,7 @@
     
 
     
-    <h4 class="name" id="getFollowing"><span class="type-signature">(async) </span>getFollowing<span class="signature">(username, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
+    <h4 class="name" id="getFollowing"><span class="type-signature">(async) </span>getFollowing<span class="signature">(identifier, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
     
 
     
@@ -1318,13 +1330,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -1346,7 +1364,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -1843,7 +1861,7 @@
     
 
     
-    <h4 class="name" id="getPosts"><span class="type-signature">(async) </span>getPosts<span class="signature">(username, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Post.html">Post</a>>>}</span></h4>
+    <h4 class="name" id="getPosts"><span class="type-signature">(async) </span>getPosts<span class="signature">(identifier, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Post.html">Post</a>>>}</span></h4>
     
 
     
@@ -1887,13 +1905,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -1915,7 +1939,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -2049,7 +2073,7 @@
     
 
     
-    <h4 class="name" id="getUserDetails"><span class="type-signature">(async) </span>getUserDetails<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="UserDetails.html">UserDetails</a>>}</span></h4>
+    <h4 class="name" id="getUserDetails"><span class="type-signature">(async) </span>getUserDetails<span class="signature">(identifier)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="UserDetails.html">UserDetails</a>>}</span></h4>
     
 
     
@@ -2089,13 +2113,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -2105,7 +2135,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -2941,7 +2971,7 @@
     
 
     
-    <h4 class="name" id="unfollow"><span class="type-signature">(async) </span>unfollow<span class="signature">(username)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
+    <h4 class="name" id="unfollow"><span class="type-signature">(async) </span>unfollow<span class="signature">(identifier)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
     
 
     
@@ -2981,13 +3011,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -2997,7 +3033,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -3262,7 +3298,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun May 16 2021 10:42:39 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon May 17 2021 08:41:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

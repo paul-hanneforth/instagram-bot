@@ -942,7 +942,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line527">line 527</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line544">line 544</a>
     </li></ul></dd>
     
 
@@ -1527,7 +1527,7 @@
     
 
     
-    <h4 class="name" id="follow"><span class="type-signature">(async) </span>follow<span class="signature">(page, username)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
+    <h4 class="name" id="follow"><span class="type-signature">(async) </span>follow<span class="signature">(page, identifier)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
     
 
     
@@ -1590,13 +1590,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -1606,7 +1612,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -1647,7 +1653,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line414">line 414</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line431">line 431</a>
     </li></ul></dd>
     
 
@@ -1852,7 +1858,7 @@
     
 
     
-    <h4 class="name" id="getFollower"><span class="type-signature">(async) </span>getFollower<span class="signature">(page, username, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
+    <h4 class="name" id="getFollower"><span class="type-signature">(async) </span>getFollower<span class="signature">(page, identifier, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
     
 
     
@@ -1931,13 +1937,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -1959,7 +1971,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -2039,7 +2051,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line248">line 248</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line250">line 250</a>
     </li></ul></dd>
     
 
@@ -2093,7 +2105,7 @@
     
 
     
-    <h4 class="name" id="getFollowing"><span class="type-signature">(async) </span>getFollowing<span class="signature">(page, username, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
+    <h4 class="name" id="getFollowing"><span class="type-signature">(async) </span>getFollowing<span class="signature">(page, identifier, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="User.html">User</a>>>}</span></h4>
     
 
     
@@ -2172,13 +2184,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -2200,7 +2218,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -2280,7 +2298,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line300">line 300</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line307">line 307</a>
     </li></ul></dd>
     
 
@@ -2524,7 +2542,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line598">line 598</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line615">line 615</a>
     </li></ul></dd>
     
 
@@ -2701,7 +2719,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line494">line 494</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line511">line 511</a>
     </li></ul></dd>
     
 
@@ -2755,7 +2773,7 @@
     
 
     
-    <h4 class="name" id="getPosts"><span class="type-signature">(async) </span>getPosts<span class="signature">(page, username, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Post.html">Post</a>>>}</span></h4>
+    <h4 class="name" id="getPosts"><span class="type-signature">(async) </span>getPosts<span class="signature">(page, identifier, minLength<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Post.html">Post</a>>>}</span></h4>
     
 
     
@@ -2834,13 +2852,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -2862,7 +2886,7 @@
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -2942,7 +2966,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line468">line 468</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line485">line 485</a>
     </li></ul></dd>
     
 
@@ -2996,7 +3020,7 @@
     
 
     
-    <h4 class="name" id="getUserDetails"><span class="type-signature">(async) </span>getUserDetails<span class="signature">(page, username)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="UserDetails.html">UserDetails</a>>}</span></h4>
+    <h4 class="name" id="getUserDetails"><span class="type-signature">(async) </span>getUserDetails<span class="signature">(page, identifier)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="UserDetails.html">UserDetails</a>>}</span></h4>
     
 
     
@@ -3059,13 +3083,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -3075,7 +3105,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -3116,7 +3146,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line351">line 351</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line363">line 363</a>
     </li></ul></dd>
     
 
@@ -3276,7 +3306,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line187">line 187</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -3427,7 +3457,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line123">line 123</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line125">line 125</a>
     </li></ul></dd>
     
 
@@ -3755,7 +3785,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line558">line 558</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line575">line 575</a>
     </li></ul></dd>
     
 
@@ -4355,7 +4385,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line104">line 104</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
@@ -5122,7 +5152,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line139">line 139</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line141">line 141</a>
     </li></ul></dd>
     
 
@@ -5327,7 +5357,7 @@
     
 
     
-    <h4 class="name" id="unfollow"><span class="type-signature">(async) </span>unfollow<span class="signature">(page, username)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
+    <h4 class="name" id="unfollow"><span class="type-signature">(async) </span>unfollow<span class="signature">(page, identifier)</span><span class="type-signature"> &rarr; {Promise.&lt;any>}</span></h4>
     
 
     
@@ -5390,13 +5420,19 @@
 
         <tr>
             
-                <td class="name"><code>username</code></td>
+                <td class="name"><code>identifier</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+|
+
+<span class="param-type"><a href="User.html">User</a></span>
+|
+
+<span class="param-type"><a href="SearchResult.html">SearchResult</a></span>
 
 
             
@@ -5406,7 +5442,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">can either be a username, link, an instance of the User class or a SearchResult which links to a User</td>
         </tr>
 
     
@@ -5447,7 +5483,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line438">line 438</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line455">line 455</a>
     </li></ul></dd>
     
 
@@ -5624,7 +5660,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line579">line 579</a>
+        <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line596">line 596</a>
     </li></ul></dd>
     
 
@@ -5845,7 +5881,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun May 16 2021 10:42:39 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon May 17 2021 08:41:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -33,12 +33,12 @@ const { IBError } = require("./error.js");
 const { errorMessage } = require("./message.js");
 const { SearchResult, User, UserDetails } = require("./class.js");
 
-class Stack {
+class Queue {
 
     constructor() {
         this.list = [];
 
-        // start running Stack
+        // start running Queue
         this.run();
     }
     async run() {
@@ -71,14 +71,14 @@ class InstagramBot {
      * @param {Boolean} [ authenticated = false ]
      * @property {puppeteer.Browser} browser
      * @property {puppeteer.Page} page
-     * @property {Stack} stack
+     * @property {Queue} queue
      * @property {Boolean} authenticated
      * @property {String} username
      */
     constructor(browser, page, authenticated = false) {
         this.browser = browser;
         this.page = page;
-        this.stack = new Stack();
+        this.queue = new Queue();
         this.authenticated = authenticated;
         this.username = null;
     }
@@ -103,7 +103,7 @@ class InstagramBot {
      * @returns {Promise&lt;Object>}
      */
     async getCookies() {
-        const cookies = await this.stack.push(() => actions.getCookies(this.page));
+        const cookies = await this.queue.push(() => actions.getCookies(this.page));
 
         return cookies;
     }
@@ -115,7 +115,7 @@ class InstagramBot {
      * @returns {Promise&lt;any>}
      */
     async login(username, password) {
-        await this.stack.push(() => actions.login(this.page, username, password));
+        await this.queue.push(() => actions.login(this.page, username, password));
 
         this.username = username;
         this.authenticated = true;
@@ -128,7 +128,7 @@ class InstagramBot {
     async logout() {
         if(!this.authenticated) return;
 
-        await this.stack.push(() => actions.logout(this.page, this.username));
+        await this.queue.push(() => actions.logout(this.page, this.username));
 
         this.username = null;
         this.authenticated = false;
@@ -143,7 +143,7 @@ class InstagramBot {
     async getFollowing(identifier, minLength = 50) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const following = await this.stack.push(() => actions.getFollowing(this.page, identifier, minLength));
+        const following = await this.queue.push(() => actions.getFollowing(this.page, identifier, minLength));
 
         return following;
     }
@@ -157,7 +157,7 @@ class InstagramBot {
     async getFollower(identifier, minLength = 50) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const follower = await this.stack.push(() => actions.getFollower(this.page, identifier, minLength));
+        const follower = await this.queue.push(() => actions.getFollower(this.page, identifier, minLength));
 
         return follower;
     }
@@ -170,7 +170,7 @@ class InstagramBot {
     async follow(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.follow(this.page, identifier));
+        await this.queue.push(() => actions.follow(this.page, identifier));
     }
 
     /**
@@ -181,7 +181,7 @@ class InstagramBot {
      async unfollow(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.unfollow(this.page, identifier));
+        await this.queue.push(() => actions.unfollow(this.page, identifier));
     }
 
     /**
@@ -192,7 +192,7 @@ class InstagramBot {
     async search(searchTerm) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const searchResults = await this.stack.push(() => actions.search(this.page, searchTerm));
+        const searchResults = await this.queue.push(() => actions.search(this.page, searchTerm));
         return searchResults;
     }
 
@@ -204,7 +204,7 @@ class InstagramBot {
     async goto(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.goto(this.page, identifier));
+        await this.queue.push(() => actions.goto(this.page, identifier));
     }
 
     /**
@@ -215,7 +215,7 @@ class InstagramBot {
     async getUserDetails(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const userDetails = await this.stack.push(() => actions.getUserDetails(this.page, identifier));
+        const userDetails = await this.queue.push(() => actions.getUserDetails(this.page, identifier));
         return userDetails;
     }
 
@@ -228,7 +228,7 @@ class InstagramBot {
     async getPosts(identifier, minLength = 50) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const posts = await this.stack.push(() => actions.getPosts(this.page, identifier, minLength));
+        const posts = await this.queue.push(() => actions.getPosts(this.page, identifier, minLength));
         return posts;
     }
 
@@ -240,7 +240,7 @@ class InstagramBot {
     async getPostDetails(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const postDetails = await this.stack.push(() => actions.getPostDetails(this.page, identifier));
+        const postDetails = await this.queue.push(() => actions.getPostDetails(this.page, identifier));
         return postDetails;
     }
 
@@ -252,7 +252,7 @@ class InstagramBot {
     async likePost(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.likePost(this.page, identifier));
+        await this.queue.push(() => actions.likePost(this.page, identifier));
     }
 
     /**
@@ -263,7 +263,7 @@ class InstagramBot {
     async unlikePost(identifier) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.unlikePost(this.page, identifier));
+        await this.queue.push(() => actions.unlikePost(this.page, identifier));
     }
 
     /**
@@ -275,7 +275,7 @@ class InstagramBot {
     async commentPost(postIdentifier, comment) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.stack.push(() => actions.commentPost(this.page, postIdentifier, comment));
+        await this.queue.push(() => actions.commentPost(this.page, postIdentifier, comment));
     }
 
     /**
@@ -287,7 +287,7 @@ class InstagramBot {
     async getPostComments(postIdentifier, minComments = 5) {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const comments = await this.stack.push(() => actions.getPostComments(this.page, postIdentifier, minComments));
+        const comments = await this.queue.push(() => actions.getPostComments(this.page, postIdentifier, minComments));
         return comments;
     }
 
@@ -309,7 +309,7 @@ module.exports = InstagramBot;</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon May 17 2021 08:41:49 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Fri May 21 2021 20:23:58 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

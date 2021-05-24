@@ -63,7 +63,7 @@ class InstagramBot {
      */
     static async launch(headless = false, cookies = []) {
         const browser = await actions.launchBrowser({ headless });
-        const page = await actions.newPage(browser, "about:blank", "en", cookies);
+        const page = await actions.newPage(browser, "en", cookies);
 
         // check if page is already authenticated
         const isAuthenticated = await actions.isAuthenticated(page);

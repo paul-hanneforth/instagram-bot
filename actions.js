@@ -16,12 +16,11 @@ const launchBrowser = async (args) => await puppeteer.launch(args);
 /**
  * 
  * @param {puppeteer.Browser} browser 
- * @param {String} url 
  * @param {String} language 
  * @param {Object} [cookies = []]
  * @returns {Promise<puppeteer.Page>}
  */
-const newPage = async (browser, url, language, cookies = []) => {
+const newPage = async (browser, language, cookies = []) => {
 
     // create page
     const page = await browser.newPage();
@@ -33,9 +32,6 @@ const newPage = async (browser, url, language, cookies = []) => {
 
     // set cookies
     await page.setCookie(...cookies);
-
-    // goto url
-    await page.goto(url);
 
     return page;
 
@@ -56,7 +52,7 @@ const getCookies = async (page) => {
  * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
  * @returns {Promise<any>}
  */
- const goto = async (page, identifier) => {
+const goto = async (page, identifier) => {
     try {
 
         const link = identifier instanceof SearchResult ? identifier.link :

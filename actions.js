@@ -16,12 +16,11 @@ const launchBrowser = async (args) => await puppeteer.launch(args);
 /**
  * 
  * @param {puppeteer.Browser} browser 
- * @param {String} url 
  * @param {String} language 
  * @param {Object} [cookies = []]
  * @returns {Promise<puppeteer.Page>}
  */
-const newPage = async (browser, url, language, cookies = []) => {
+const newPage = async (browser, language, cookies = []) => {
 
     // create page
     const page = await browser.newPage();
@@ -33,9 +32,6 @@ const newPage = async (browser, url, language, cookies = []) => {
 
     // set cookies
     await page.setCookie(...cookies);
-
-    // goto url
-    await page.goto(url);
 
     return page;
 
@@ -49,136 +45,6 @@ const newPage = async (browser, url, language, cookies = []) => {
 const getCookies = async (page) => {
     const cookies = await page.cookies();
     return cookies;
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String} username 
- * @param {String} password 
- */
-const login = async (page, username, password) => {
-
-    // goto login page
-    await page.goto("https://www.instagram.com/");
-    await tools.wait(5 * 1000);
-
-    // dismiss popups
-    await popup.dismissCookiePopup(page);
-
-    // enter username
-    try {
-        await page.waitForSelector("[name='username']");
-    } catch(e) {
-        throw new IBError(errorMessage.inputFieldNotFound.code, errorMessage.inputFieldNotFound.message, e);
-    }
-    await page.type("[name='username']", username);
-
-    // enter password
-    await page.waitForSelector("[name='password']");
-    await page.type("[name='password']", password);
-
-    // click login button
-    await tools.clickOnButton(page, "Log In");
-    await tools.wait(1000 * 5);
-
-    // check if error happened
-    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
-        if (element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
-        return prev;
-    }, false));
-    const waitUntilLoggingIn = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
-        if (element.innerHTML == "Please wait a few minutes before you try again.") return true;
-        return prev;
-    }, false));
-    const accountDoesntExist = await page.evaluate(() => [...document.querySelectorAll("p")].find(p => p.innerHTML == "The username you entered doesn't belong to an account. Please check your username and try again.") ? true : false);
-
-    if(wrongPassword) throw new IBLoginError(errorMessage.incorrectPassword.code, errorMessage.incorrectPassword.message, username);
-    if(waitUntilLoggingIn) throw new IBLoginError(errorMessage.waitBeforeLogin.code, errorMessage.waitBeforeLogin.message, username);
-    if(accountDoesntExist ? true : false) throw new IBLoginError(errorMessage.accountNotFound.code, errorMessage.accountNotFound.message, username);
-
-};
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String} username
- */
-const logout = async (page, username) => {
-
-    // goto instagram page
-    await page.goto("https://www.instagram.com/");
-    await tools.wait(1000 * 5);
-
-    // find profile image and click it
-    await tools.clickOnElement(page, "[alt]", { alt: username + "'s profile picture" });
-
-    // click on 'Log Out' Button
-    await tools.clickOnDiv(page, "Log Out");
-
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @returns {Promise<Boolean>}
- */
-const isAuthenticated = async (page) => {
-
-    // check if 'Login' button is present
-    const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });
-    const loginButtonExists = await tools.elementExists(page, "button", { innerHTML: "Log In" });
-
-    return loginElementExists || loginButtonExists ? false : true;
-
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String} searchTerm 
- * @returns {Promise<SearchResult[]>}
- */
-const search = async (page, searchTerm) => {
-
-    // goto instagram-page
-    await page.goto("https://www.instagram.com/");
-
-    // wait for search term field to appear
-    try {
-        await page.waitForSelector("[placeholder='Search']");
-    } catch(e) {
-        throw new IBError(errorMessage.searchFieldNotFound.code, errorMessage.searchFieldNotFound.message, e);
-    }
-
-    // clear search term field
-    await page.evaluate(() => {
-        const element = document.querySelector("[placeholder='Search']");
-        element.value = "";
-    });
-
-    // enter search term
-    await page.type("[placeholder='Search']", searchTerm);
-
-    await tools.wait(1000 * 4);
-
-    // load results into array
-    const tiles = await page.evaluate(() => {
-        const elements = [...document.querySelectorAll(".-qQT3")];
-
-        const tile = elements.map((element) => {
-            const link = element.href;
-            const title = element.querySelector(".uL8Hv").innerHTML;
-            const isHashtag = title.startsWith("#");
-            const rawDescription = element.querySelector("._0PwGv") ? element.querySelector("._0PwGv").innerHTML : null;
-            const description = isHashtag ? rawDescription.split(">")[2].split("<")[0] : rawDescription;
-            return { link, title, description, isHashtag };
-        });
-        return tile;
-    });
-    const searchResults = tiles.map(tile => new SearchResult(tile.link, tile.title, tile.description, tile.isHashtag));
-
-    return searchResults;
-
 };
 
 /**
@@ -238,6 +104,136 @@ const goto = async (page, identifier) => {
     } catch(e) {
         throw new IBGotoError(errorMessage.failedToGotoIdentifier.code, errorMessage.failedToGotoIdentifier.message, identifier, e);
     }
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} username 
+ * @param {String} password 
+ */
+const login = async (page, username, password) => {
+
+    // goto login page
+    await goto(page, "https://www.instagram.com/");
+    await tools.wait(5 * 1000);
+
+    // dismiss popups
+    await popup.dismissCookiePopup(page);
+
+    // enter username
+    try {
+        await page.waitForSelector("[name='username']");
+    } catch(e) {
+        throw new IBError(errorMessage.inputFieldNotFound.code, errorMessage.inputFieldNotFound.message, e);
+    }
+    await page.type("[name='username']", username);
+
+    // enter password
+    await page.waitForSelector("[name='password']");
+    await page.type("[name='password']", password);
+
+    // click login button
+    await tools.clickOnButton(page, "Log In");
+    await tools.wait(1000 * 5);
+
+    // check if error happened
+    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+        if (element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
+        return prev;
+    }, false));
+    const waitUntilLoggingIn = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+        if (element.innerHTML == "Please wait a few minutes before you try again.") return true;
+        return prev;
+    }, false));
+    const accountDoesntExist = await page.evaluate(() => [...document.querySelectorAll("p")].find(p => p.innerHTML == "The username you entered doesn't belong to an account. Please check your username and try again.") ? true : false);
+
+    if(wrongPassword) throw new IBLoginError(errorMessage.incorrectPassword.code, errorMessage.incorrectPassword.message, username);
+    if(waitUntilLoggingIn) throw new IBLoginError(errorMessage.waitBeforeLogin.code, errorMessage.waitBeforeLogin.message, username);
+    if(accountDoesntExist ? true : false) throw new IBLoginError(errorMessage.accountNotFound.code, errorMessage.accountNotFound.message, username);
+
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} username
+ */
+const logout = async (page, username) => {
+
+    // goto instagram page
+    await goto(page, "https://www.instagram.com/");
+    await tools.wait(1000 * 5);
+
+    // find profile image and click it
+    await tools.clickOnElement(page, "[alt]", { alt: username + "'s profile picture" });
+
+    // click on 'Log Out' Button
+    await tools.clickOnDiv(page, "Log Out");
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @returns {Promise<Boolean>}
+ */
+const isAuthenticated = async (page) => {
+
+    // check if 'Login' button is present
+    const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });
+    const loginButtonExists = await tools.elementExists(page, "button", { innerHTML: "Log In" });
+
+    return loginElementExists || loginButtonExists ? false : true;
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} searchTerm 
+ * @returns {Promise<SearchResult[]>}
+ */
+const search = async (page, searchTerm) => {
+
+    // goto instagram-page
+    await goto(page, "https://www.instagram.com/");
+
+    // wait for search term field to appear
+    try {
+        await page.waitForSelector("[placeholder='Search']");
+    } catch(e) {
+        throw new IBError(errorMessage.searchFieldNotFound.code, errorMessage.searchFieldNotFound.message, e);
+    }
+
+    // clear search term field
+    await page.evaluate(() => {
+        const element = document.querySelector("[placeholder='Search']");
+        element.value = "";
+    });
+
+    // enter search term
+    await page.type("[placeholder='Search']", searchTerm);
+
+    await tools.wait(1000 * 4);
+
+    // load results into array
+    const tiles = await page.evaluate(() => {
+        const elements = [...document.querySelectorAll(".-qQT3")];
+
+        const tile = elements.map((element) => {
+            const link = element.href;
+            const title = element.querySelector(".uL8Hv").innerHTML;
+            const isHashtag = title.startsWith("#");
+            const rawDescription = element.querySelector("._0PwGv") ? element.querySelector("._0PwGv").innerHTML : null;
+            const description = isHashtag ? rawDescription.split(">")[2].split("<")[0] : rawDescription;
+            return { link, title, description, isHashtag };
+        });
+        return tile;
+    });
+    const searchResults = tiles.map(tile => new SearchResult(tile.link, tile.title, tile.description, tile.isHashtag));
+
+    return searchResults;
+
 };
 
 /**
@@ -474,6 +470,26 @@ const unfollow = async (page, identifier) => {
     await tools.wait(1000 * 2);
 
 };
+/**
+ *
+ * @param {puppeteer.Page} page 
+ * @param {String | User | SearchResult} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+ * @returns {Promise<Boolean>} whether you are following the specified user or not
+ */
+const isFollowing = async (page, userIdentifier) => {
+
+    // goto page of user
+    await goto(page, userIdentifier);
+
+    // wait
+    await page.waitForNavigation();
+    await tools.wait(1000 * 2);
+
+    // check if symbol for unfollowing a user exists
+    const followingSymbolExists = await tools.elementExists(page, "[aria-label='Following']");
+    return followingSymbolExists;
+
+};
 
 /**
  * 
@@ -698,5 +714,6 @@ module.exports = {
     likePost,
     unlikePost,
     commentPost,
-    getPostComments
+    getPostComments,
+    isFollowing
 };

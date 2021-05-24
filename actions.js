@@ -119,7 +119,7 @@ const getCookies = async (page) => {
 const login = async (page, username, password) => {
 
     // goto login page
-    await page.goto("https://www.instagram.com/");
+    await goto(page, "https://www.instagram.com/");
     await tools.wait(5 * 1000);
 
     // dismiss popups
@@ -165,7 +165,7 @@ const login = async (page, username, password) => {
 const logout = async (page, username) => {
 
     // goto instagram page
-    await page.goto("https://www.instagram.com/");
+    await goto(page, "https://www.instagram.com/");
     await tools.wait(1000 * 5);
 
     // find profile image and click it
@@ -200,7 +200,7 @@ const isAuthenticated = async (page) => {
 const search = async (page, searchTerm) => {
 
     // goto instagram-page
-    await page.goto("https://www.instagram.com/");
+    await goto(page, "https://www.instagram.com/");
 
     // wait for search term field to appear
     try {

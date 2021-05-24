@@ -44,12 +44,11 @@ const launchBrowser = async (args) => await puppeteer.launch(args);
 /**
  * 
  * @param {puppeteer.Browser} browser 
- * @param {String} url 
  * @param {String} language 
  * @param {Object} [cookies = []]
  * @returns {Promise&lt;puppeteer.Page>}
  */
-const newPage = async (browser, url, language, cookies = []) => {
+const newPage = async (browser, language, cookies = []) => {
 
     // create page
     const page = await browser.newPage();
@@ -61,9 +60,6 @@ const newPage = async (browser, url, language, cookies = []) => {
 
     // set cookies
     await page.setCookie(...cookies);
-
-    // goto url
-    await page.goto(url);
 
     return page;
 
@@ -77,136 +73,6 @@ const newPage = async (browser, url, language, cookies = []) => {
 const getCookies = async (page) => {
     const cookies = await page.cookies();
     return cookies;
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String} username 
- * @param {String} password 
- */
-const login = async (page, username, password) => {
-
-    // goto login page
-    await page.goto("https://www.instagram.com/");
-    await tools.wait(5 * 1000);
-
-    // dismiss popups
-    await popup.dismissCookiePopup(page);
-
-    // enter username
-    try {
-        await page.waitForSelector("[name='username']");
-    } catch(e) {
-        throw new IBError(errorMessage.inputFieldNotFound.code, errorMessage.inputFieldNotFound.message, e);
-    }
-    await page.type("[name='username']", username);
-
-    // enter password
-    await page.waitForSelector("[name='password']");
-    await page.type("[name='password']", password);
-
-    // click login button
-    await tools.clickOnButton(page, "Log In");
-    await tools.wait(1000 * 5);
-
-    // check if error happened
-    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
-        if (element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
-        return prev;
-    }, false));
-    const waitUntilLoggingIn = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
-        if (element.innerHTML == "Please wait a few minutes before you try again.") return true;
-        return prev;
-    }, false));
-    const accountDoesntExist = await page.evaluate(() => [...document.querySelectorAll("p")].find(p => p.innerHTML == "The username you entered doesn't belong to an account. Please check your username and try again.") ? true : false);
-
-    if(wrongPassword) throw new IBLoginError(errorMessage.incorrectPassword.code, errorMessage.incorrectPassword.message, username);
-    if(waitUntilLoggingIn) throw new IBLoginError(errorMessage.waitBeforeLogin.code, errorMessage.waitBeforeLogin.message, username);
-    if(accountDoesntExist ? true : false) throw new IBLoginError(errorMessage.accountNotFound.code, errorMessage.accountNotFound.message, username);
-
-};
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String} username
- */
-const logout = async (page, username) => {
-
-    // goto instagram page
-    await page.goto("https://www.instagram.com/");
-    await tools.wait(1000 * 5);
-
-    // find profile image and click it
-    await tools.clickOnElement(page, "[alt]", { alt: username + "'s profile picture" });
-
-    // click on 'Log Out' Button
-    await tools.clickOnDiv(page, "Log Out");
-
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @returns {Promise&lt;Boolean>}
- */
-const isAuthenticated = async (page) => {
-
-    // check if 'Login' button is present
-    const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });
-    const loginButtonExists = await tools.elementExists(page, "button", { innerHTML: "Log In" });
-
-    return loginElementExists || loginButtonExists ? false : true;
-
-};
-
-/**
- * 
- * @param {puppeteer.Page} page 
- * @param {String} searchTerm 
- * @returns {Promise&lt;SearchResult[]>}
- */
-const search = async (page, searchTerm) => {
-
-    // goto instagram-page
-    await page.goto("https://www.instagram.com/");
-
-    // wait for search term field to appear
-    try {
-        await page.waitForSelector("[placeholder='Search']");
-    } catch(e) {
-        throw new IBError(errorMessage.searchFieldNotFound.code, errorMessage.searchFieldNotFound.message, e);
-    }
-
-    // clear search term field
-    await page.evaluate(() => {
-        const element = document.querySelector("[placeholder='Search']");
-        element.value = "";
-    });
-
-    // enter search term
-    await page.type("[placeholder='Search']", searchTerm);
-
-    await tools.wait(1000 * 4);
-
-    // load results into array
-    const tiles = await page.evaluate(() => {
-        const elements = [...document.querySelectorAll(".-qQT3")];
-
-        const tile = elements.map((element) => {
-            const link = element.href;
-            const title = element.querySelector(".uL8Hv").innerHTML;
-            const isHashtag = title.startsWith("#");
-            const rawDescription = element.querySelector("._0PwGv") ? element.querySelector("._0PwGv").innerHTML : null;
-            const description = isHashtag ? rawDescription.split(">")[2].split("&lt;")[0] : rawDescription;
-            return { link, title, description, isHashtag };
-        });
-        return tile;
-    });
-    const searchResults = tiles.map(tile => new SearchResult(tile.link, tile.title, tile.description, tile.isHashtag));
-
-    return searchResults;
-
 };
 
 /**
@@ -266,6 +132,136 @@ const goto = async (page, identifier) => {
     } catch(e) {
         throw new IBGotoError(errorMessage.failedToGotoIdentifier.code, errorMessage.failedToGotoIdentifier.message, identifier, e);
     }
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} username 
+ * @param {String} password 
+ */
+const login = async (page, username, password) => {
+
+    // goto login page
+    await goto(page, "https://www.instagram.com/");
+    await tools.wait(5 * 1000);
+
+    // dismiss popups
+    await popup.dismissCookiePopup(page);
+
+    // enter username
+    try {
+        await page.waitForSelector("[name='username']");
+    } catch(e) {
+        throw new IBError(errorMessage.inputFieldNotFound.code, errorMessage.inputFieldNotFound.message, e);
+    }
+    await page.type("[name='username']", username);
+
+    // enter password
+    await page.waitForSelector("[name='password']");
+    await page.type("[name='password']", password);
+
+    // click login button
+    await tools.clickOnButton(page, "Log In");
+    await tools.wait(1000 * 5);
+
+    // check if error happened
+    const wrongPassword = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+        if (element.innerHTML == "Sorry, your password was incorrect. Please double-check your password.") return true;
+        return prev;
+    }, false));
+    const waitUntilLoggingIn = await page.evaluate(() => [...document.querySelectorAll("p")].reduce((prev, element) => {
+        if (element.innerHTML == "Please wait a few minutes before you try again.") return true;
+        return prev;
+    }, false));
+    const accountDoesntExist = await page.evaluate(() => [...document.querySelectorAll("p")].find(p => p.innerHTML == "The username you entered doesn't belong to an account. Please check your username and try again.") ? true : false);
+
+    if(wrongPassword) throw new IBLoginError(errorMessage.incorrectPassword.code, errorMessage.incorrectPassword.message, username);
+    if(waitUntilLoggingIn) throw new IBLoginError(errorMessage.waitBeforeLogin.code, errorMessage.waitBeforeLogin.message, username);
+    if(accountDoesntExist ? true : false) throw new IBLoginError(errorMessage.accountNotFound.code, errorMessage.accountNotFound.message, username);
+
+};
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} username
+ */
+const logout = async (page, username) => {
+
+    // goto instagram page
+    await goto(page, "https://www.instagram.com/");
+    await tools.wait(1000 * 5);
+
+    // find profile image and click it
+    await tools.clickOnElement(page, "[alt]", { alt: username + "'s profile picture" });
+
+    // click on 'Log Out' Button
+    await tools.clickOnDiv(page, "Log Out");
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @returns {Promise&lt;Boolean>}
+ */
+const isAuthenticated = async (page) => {
+
+    // check if 'Login' button is present
+    const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });
+    const loginButtonExists = await tools.elementExists(page, "button", { innerHTML: "Log In" });
+
+    return loginElementExists || loginButtonExists ? false : true;
+
+};
+
+/**
+ * 
+ * @param {puppeteer.Page} page 
+ * @param {String} searchTerm 
+ * @returns {Promise&lt;SearchResult[]>}
+ */
+const search = async (page, searchTerm) => {
+
+    // goto instagram-page
+    await goto(page, "https://www.instagram.com/");
+
+    // wait for search term field to appear
+    try {
+        await page.waitForSelector("[placeholder='Search']");
+    } catch(e) {
+        throw new IBError(errorMessage.searchFieldNotFound.code, errorMessage.searchFieldNotFound.message, e);
+    }
+
+    // clear search term field
+    await page.evaluate(() => {
+        const element = document.querySelector("[placeholder='Search']");
+        element.value = "";
+    });
+
+    // enter search term
+    await page.type("[placeholder='Search']", searchTerm);
+
+    await tools.wait(1000 * 4);
+
+    // load results into array
+    const tiles = await page.evaluate(() => {
+        const elements = [...document.querySelectorAll(".-qQT3")];
+
+        const tile = elements.map((element) => {
+            const link = element.href;
+            const title = element.querySelector(".uL8Hv").innerHTML;
+            const isHashtag = title.startsWith("#");
+            const rawDescription = element.querySelector("._0PwGv") ? element.querySelector("._0PwGv").innerHTML : null;
+            const description = isHashtag ? rawDescription.split(">")[2].split("&lt;")[0] : rawDescription;
+            return { link, title, description, isHashtag };
+        });
+        return tile;
+    });
+    const searchResults = tiles.map(tile => new SearchResult(tile.link, tile.title, tile.description, tile.isHashtag));
+
+    return searchResults;
+
 };
 
 /**
@@ -502,6 +498,26 @@ const unfollow = async (page, identifier) => {
     await tools.wait(1000 * 2);
 
 };
+/**
+ *
+ * @param {puppeteer.Page} page 
+ * @param {String | User | SearchResult} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+ * @returns {Promise&lt;Boolean>} whether you are following the specified user or not
+ */
+const isFollowing = async (page, userIdentifier) => {
+
+    // goto page of user
+    await goto(page, userIdentifier);
+
+    // wait
+    await page.waitForNavigation();
+    await tools.wait(1000 * 2);
+
+    // check if symbol for unfollowing a user exists
+    const followingSymbolExists = await tools.elementExists(page, "[aria-label='Following']");
+    return followingSymbolExists;
+
+};
 
 /**
  * 
@@ -726,7 +742,8 @@ module.exports = {
     likePost,
     unlikePost,
     commentPost,
-    getPostComments
+    getPostComments,
+    isFollowing
 };</code></pre>
         </article>
     </section>
@@ -737,13 +754,13 @@ module.exports = {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Comment.html">Comment</a></li><li><a href="IBError.html">IBError</a></li><li><a href="IBGotoError.html">IBGotoError</a></li><li><a href="IBLoginError.html">IBLoginError</a></li><li><a href="InstagramBot.html">InstagramBot</a></li><li><a href="Post.html">Post</a></li><li><a href="PostDetails.html">PostDetails</a></li><li><a href="SearchResult.html">SearchResult</a></li><li><a href="User.html">User</a></li><li><a href="UserDetails.html">UserDetails</a></li></ul><h3>Global</h3><ul><li><a href="global.html#clickOnButton">clickOnButton</a></li><li><a href="global.html#clickOnDiv">clickOnDiv</a></li><li><a href="global.html#clickOnElement">clickOnElement</a></li><li><a href="global.html#clickOnElements">clickOnElements</a></li><li><a href="global.html#commentPost">commentPost</a></li><li><a href="global.html#dismissCookiePopup">dismissCookiePopup</a></li><li><a href="global.html#elementExists">elementExists</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#getCookies">getCookies</a></li><li><a href="global.html#getFollower">getFollower</a></li><li><a href="global.html#getFollowing">getFollowing</a></li><li><a href="global.html#getPostComments">getPostComments</a></li><li><a href="global.html#getPostDetails">getPostDetails</a></li><li><a href="global.html#getPosts">getPosts</a></li><li><a href="global.html#getUserDetails">getUserDetails</a></li><li><a href="global.html#goto">goto</a></li><li><a href="global.html#isAuthenticated">isAuthenticated</a></li><li><a href="global.html#launchBrowser">launchBrowser</a></li><li><a href="global.html#likePost">likePost</a></li><li><a href="global.html#loadElementsFromList">loadElementsFromList</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#logout">logout</a></li><li><a href="global.html#newPage">newPage</a></li><li><a href="global.html#scroll">scroll</a></li><li><a href="global.html#scrollBy">scrollBy</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#StringToNumber">StringToNumber</a></li><li><a href="global.html#unfollow">unfollow</a></li><li><a href="global.html#unlikePost">unlikePost</a></li><li><a href="global.html#wait">wait</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Comment.html">Comment</a></li><li><a href="IBError.html">IBError</a></li><li><a href="IBGotoError.html">IBGotoError</a></li><li><a href="IBLoginError.html">IBLoginError</a></li><li><a href="InstagramBot.html">InstagramBot</a></li><li><a href="Post.html">Post</a></li><li><a href="PostDetails.html">PostDetails</a></li><li><a href="SearchResult.html">SearchResult</a></li><li><a href="User.html">User</a></li><li><a href="UserDetails.html">UserDetails</a></li></ul><h3>Global</h3><ul><li><a href="global.html#clickOnButton">clickOnButton</a></li><li><a href="global.html#clickOnDiv">clickOnDiv</a></li><li><a href="global.html#clickOnElement">clickOnElement</a></li><li><a href="global.html#clickOnElements">clickOnElements</a></li><li><a href="global.html#commentPost">commentPost</a></li><li><a href="global.html#dismissCookiePopup">dismissCookiePopup</a></li><li><a href="global.html#elementExists">elementExists</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#follow">follow</a></li><li><a href="global.html#getCookies">getCookies</a></li><li><a href="global.html#getFollower">getFollower</a></li><li><a href="global.html#getFollowing">getFollowing</a></li><li><a href="global.html#getPostComments">getPostComments</a></li><li><a href="global.html#getPostDetails">getPostDetails</a></li><li><a href="global.html#getPosts">getPosts</a></li><li><a href="global.html#getUserDetails">getUserDetails</a></li><li><a href="global.html#goto">goto</a></li><li><a href="global.html#isAuthenticated">isAuthenticated</a></li><li><a href="global.html#isFollowing">isFollowing</a></li><li><a href="global.html#launchBrowser">launchBrowser</a></li><li><a href="global.html#likePost">likePost</a></li><li><a href="global.html#loadElementsFromList">loadElementsFromList</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#logout">logout</a></li><li><a href="global.html#newPage">newPage</a></li><li><a href="global.html#scroll">scroll</a></li><li><a href="global.html#scrollBy">scrollBy</a></li><li><a href="global.html#search">search</a></li><li><a href="global.html#StringToNumber">StringToNumber</a></li><li><a href="global.html#unfollow">unfollow</a></li><li><a href="global.html#unlikePost">unlikePost</a></li><li><a href="global.html#wait">wait</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Fri May 21 2021 20:23:58 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Mon May 24 2021 18:21:39 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

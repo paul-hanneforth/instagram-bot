@@ -470,6 +470,26 @@ const unfollow = async (page, identifier) => {
     await tools.wait(1000 * 2);
 
 };
+/**
+ *
+ * @param {puppeteer.Page} page 
+ * @param {String | User | SearchResult} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+ * @returns {Promise<Boolean>} whether you are following the specified user or not
+ */
+const isFollowing = async (page, userIdentifier) => {
+
+    // goto page of user
+    await goto(page, userIdentifier);
+
+    // wait
+    await page.waitForNavigation();
+    await tools.wait(1000 * 2);
+
+    // check if symbol for unfollowing a user exists
+    const followingSymbolExists = await tools.elementExists(page, "[aria-label='Following']");
+    return followingSymbolExists;
+
+};
 
 /**
  * 
@@ -694,5 +714,6 @@ module.exports = {
     likePost,
     unlikePost,
     commentPost,
-    getPostComments
+    getPostComments,
+    isFollowing
 };

@@ -157,6 +157,18 @@ class InstagramBot {
     }
 
     /**
+     *
+     * @param {String | User | SearchResult} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+     * @returns {Promise<Boolean>} whether you are following the specified user or not
+     */
+    async isFollowing(userIdentifier) {
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const result = await this.queue.push(() => actions.isFollowing(this.page, userIdentifier));
+        return result;
+    }
+
+    /**
      * 
      * @param {String} searchTerm 
      * @returns {Promise<SearchResult[]>}

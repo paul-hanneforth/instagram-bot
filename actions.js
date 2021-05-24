@@ -53,6 +53,65 @@ const getCookies = async (page) => {
 
 /**
  * 
+ * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
+ * @returns {Promise<any>}
+ */
+ const goto = async (page, identifier) => {
+    try {
+
+        const link = identifier instanceof SearchResult ? identifier.link :
+                     identifier instanceof User ? identifier.link :
+                     identifier instanceof Post ? identifier.link :
+                    identifier.startsWith("https://www.instagram.com/") ? identifier : `https://www.instagram.com/${identifier}/`;
+
+        // check if browser is already on the page
+        if(page.url() != link) {
+
+            // check if link is present on page
+            const linkPresent = await tools.clickOnElement(page, "a", { href: link });
+
+            if(!linkPresent) {
+                if(identifier == link || identifier instanceof SearchResult || identifier instanceof Post) {
+
+                    // if a link or SearchResult was given as an identifier, goto link manually
+                    await page.goto(link);
+
+                    // check if link is valid
+                    const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
+                    if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
+
+                } else {
+
+                    // search for username / identifier (most of the time it will be a username)
+                    const username = identifier instanceof User ? identifier.username : identifier;
+                    if(!page.url().startsWith("https://www.instagram.com")) await page.goto("https://www.instagram.com"); 
+                    const searchResults = await search(page, username);
+                    const searchResult = searchResults.find(searchResult => searchResult.title == username);
+                    if(searchResult) {
+                        await goto(page, searchResult);
+                    } else {
+
+                        // goto link manually
+                        await page.goto(link);
+
+                        // check if link is valid
+                        const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
+                        if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
+                    
+                    }
+
+                }
+            }
+
+        }
+
+    } catch(e) {
+        throw new IBGotoError(errorMessage.failedToGotoIdentifier.code, errorMessage.failedToGotoIdentifier.message, identifier, e);
+    }
+};
+
+/**
+ * 
  * @param {puppeteer.Page} page 
  * @param {String} username 
  * @param {String} password 
@@ -179,65 +238,6 @@ const search = async (page, searchTerm) => {
 
     return searchResults;
 
-};
-
-/**
- * 
- * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
- * @returns {Promise<any>}
- */
-const goto = async (page, identifier) => {
-    try {
-
-        const link = identifier instanceof SearchResult ? identifier.link :
-                     identifier instanceof User ? identifier.link :
-                     identifier instanceof Post ? identifier.link :
-                    identifier.startsWith("https://www.instagram.com/") ? identifier : `https://www.instagram.com/${identifier}/`;
-
-        // check if browser is already on the page
-        if(page.url() != link) {
-
-            // check if link is present on page
-            const linkPresent = await tools.clickOnElement(page, "a", { href: link });
-
-            if(!linkPresent) {
-                if(identifier == link || identifier instanceof SearchResult || identifier instanceof Post) {
-
-                    // if a link or SearchResult was given as an identifier, goto link manually
-                    await page.goto(link);
-
-                    // check if link is valid
-                    const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
-                    if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
-
-                } else {
-
-                    // search for username / identifier (most of the time it will be a username)
-                    const username = identifier instanceof User ? identifier.username : identifier;
-                    if(!page.url().startsWith("https://www.instagram.com")) await page.goto("https://www.instagram.com"); 
-                    const searchResults = await search(page, username);
-                    const searchResult = searchResults.find(searchResult => searchResult.title == username);
-                    if(searchResult) {
-                        await goto(page, searchResult);
-                    } else {
-
-                        // goto link manually
-                        await page.goto(link);
-
-                        // check if link is valid
-                        const pageAvailable = await page.evaluate(() => [...document.querySelectorAll("h2")].find((el) => el.innerHTML == "Sorry, this page isn't available.") ? false : true);
-                        if(!pageAvailable) throw new IBGotoError(errorMessage.pageNotAvailable.code, errorMessage.pageNotAvailable.message, link);
-                    
-                    }
-
-                }
-            }
-
-        }
-
-    } catch(e) {
-        throw new IBGotoError(errorMessage.failedToGotoIdentifier.code, errorMessage.failedToGotoIdentifier.message, identifier, e);
-    }
 };
 
 /**

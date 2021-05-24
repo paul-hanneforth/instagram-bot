@@ -255,9 +255,11 @@ const getFollower = async (page, identifier, minLength = 50) => {
         identifier instanceof User ? identifier.username :
         identifier instanceof SearchResult ? identifier.title :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
-
-    await tools.clickOnElement(page, `[href='/${username}/followers/']`, {});
+    const followersSectionIsClickable = await tools.clickOnElement(page, `[href='/${username}/followers/']`, {});
     await tools.wait(1000 * 5);
+
+    // if 'Followers' section is not clickable, then the account is private
+    if(!followersSectionIsClickable) throw new IBError(errorMessage.accountPrivate.code, errorMessage.accountPrivate.message);
 
     // load follower
     const getLoadedFollower = () => [...document.querySelector(".PZuss").children].map(element => {
@@ -313,8 +315,11 @@ const getFollowing = async (page, identifier, minLength = 50) => {
         identifier instanceof SearchResult ? identifier.title :
         identifier.startsWith("https://www.instagram.com") ? identifier.split("/")[3] : identifier;
 
-    await tools.clickOnElement(page, `[href='/${username}/following/']`, {});
+    const followingSectionIsClickable = await tools.clickOnElement(page, `[href='/${username}/following/']`, {});
     await tools.wait(1000 * 5);
+
+    // if 'Following' section is not clickable, then the account is private
+    if(!followingSectionIsClickable) throw new IBError(errorMessage.accountPrivate.code, errorMessage.accountPrivate.message);
 
     // load following
     const getLoadedFollowingList = () => [...document.querySelector(".PZuss").children].map(element => {

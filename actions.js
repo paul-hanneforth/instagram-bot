@@ -282,7 +282,7 @@ const getFollower = async (page, identifier, minLength = 50) => {
         const username = [...element.querySelectorAll("a")].filter(el => el.innerText)[0].innerText;
         const description = getDeepestNodes(element)
             .filter(el => el.innerText)
-            .filter(el => el.innerText != "Follow" && el.innerText != username)
+            .filter(el => el.innerText != "Follow" && el.innerText != username && el.innerText != "Verified")
             .map(el => el.innerText)[0];
 
         return { username, description };
@@ -342,12 +342,12 @@ const getFollowing = async (page, identifier, minLength = 50) => {
         const username = [...element.querySelectorAll("a")].filter(el => el.innerText)[0].innerText;
         const description = getDeepestNodes(element)
             .filter(el => el.innerText)
-            .filter(el => el.innerText != "Follow" && el.innerText != username)
+            .filter(el => el.innerText != "Follow" && el.innerText != username && el.innerText != "Verified" && el.innerText != "Following")
             .map(el => el.innerText)[0];
 
         return { username, description };
     });
-    const compareFunction = (prev, user) => prev.includes(user);
+    const compareFunction = (prev, user) => prev.find((pUser) => user.username == pUser.username) ? true : false;
 
     const loadedElements = await tools.loadElementsFromList(page, ".isgrP", getLoadedFollowingList, compareFunction, minLength);
     const following = loadedElements.map(element => new User(`https://www.instagram.com/${element.username}/`, element.username, element.description));

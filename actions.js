@@ -58,7 +58,7 @@ const goto = async (page, identifier) => {
         const link = identifier instanceof SearchResult ? identifier.link :
                      identifier instanceof User ? identifier.link :
                      identifier instanceof Post ? identifier.link :
-                    identifier.startsWith("https://www.instagram.com/") ? identifier : `https://www.instagram.com/${identifier}/`;
+                    identifier.startsWith("https://www.instagram.com") ? identifier : `https://www.instagram.com/${identifier}/`;
 
         // check if browser is already on the page
         if(page.url() != link) {
@@ -178,6 +178,10 @@ const logout = async (page, username) => {
  * @returns {Promise<Boolean>}
  */
 const isAuthenticated = async (page) => {
+
+    // goto main page
+    await goto(page, "https://www.instagram.com");
+    await tools.wait(1000 * 2);
 
     // check if 'Login' button is present
     const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });

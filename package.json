@@ -20,6 +20,7 @@
     "eslint": "^7.25.0"
   },
   "dependencies": {
+    "@paul-hanneforth/log": "^2.0.1",
     "puppeteer": "^9.0.0"
   }
 }

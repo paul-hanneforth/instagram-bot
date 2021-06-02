@@ -1,4 +1,5 @@
 node_modules
 cookies.json
-test.js
 gen-docs.cmd
+test.js
+dev.js

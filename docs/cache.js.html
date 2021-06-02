@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: format.js</title>
+    <title>JSDoc: Source: cache.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: format.js</h1>
+    <h1 class="page-title">Source: cache.js</h1>
 
     
 
@@ -26,17 +26,86 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
- * 
- * @param {String} str 
- * @returns {Number}
- */
-const StringToNumber = (str) => {
-    const strWithoutPoints = str.split(",").join("").split(".").join("");
-    return parseInt(strWithoutPoints);
-};
+            <pre class="prettyprint source linenums"><code>const { SearchResult, User, UserDetails, Post, PostDetails } = require("./class.js");
 
-module.exports = { StringToNumber };</code></pre>
+class FollowingList {
+
+    /**
+     * @constructor
+     * @param {User} user 
+     * @param {User[]} following 
+     * @property {User} user
+     * @property {User[]} following
+     */
+    constructor(user, following) {
+        this.user = user;
+        this.following = following;
+    }
+
+}
+class FollowerList {
+
+    /**
+     * @constructor
+     * @param {User} user 
+     * @param {User[]} follower 
+     * @property {User} user
+     * @property {User[]} follower
+     */
+    constructor(user, follower) {
+        this.user = user;
+        this.follower = follower;
+    }
+
+}
+
+class Cache {
+
+    /**
+     * @constructor
+     * @param {FollowingList[]} followingLists 
+     * @param {FollowerList[]} followerLists 
+     * @property {FollowingList[]} followingLists
+     * @property {FollowerList[]} followerLists
+     */
+    constructor(followingLists, followerLists) {
+        this.followingLists = followingLists;
+        this.followerList = followerLists;
+    }
+
+    /**
+     * 
+     * @returns {Cache}
+     */
+    static empty() {
+        return new Cache([], []);
+    }
+
+    /**
+     * 
+     * @param {User} user 
+     * @param {User[]} following 
+     * @returns {Cache}
+     */
+    addFollowingList(user, following) {
+        return new Cache(this.followingLists.concat(new FollowingList(user, following)), this.followerList);
+    }
+    /**
+     * 
+     * @param {User} user 
+     * @param {User[]} followers 
+     * @returns {Cache}
+     */
+    addFollowerList(user, followers) {
+        return new Cache(this.followingLists, this.followerLists.concat(new FollowerList(user, followers)));
+    }
+    findFollowingList() {
+        
+    }
+
+}
+
+module.exports = { Cache };</code></pre>
         </article>
     </section>
 

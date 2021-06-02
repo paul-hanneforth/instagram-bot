@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: snapshot.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: snapshot.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { SearchResult, User, UserDetails, Post, PostDetails } = require("./class.js");
+
+class TimeStamp {
+
+    /**
+     * @class
+     * @param {Date} date 
+     * @property {Date} date
+     */
+    constructor(date) {
+        this.date = date;
+    }
+
+    /**
+     * @returns {TimeStamp}
+     */
+    now() {
+        return new TimeStamp(new Date());
+    }
+
+}
+class Relation {
+
+    /**
+     * @constructor 
+     * @param {String} type 
+     * @property {String} type
+     */
+     constructor(type) {
+        this.type = type;
+    }
+
+    /**
+     * 
+     * @returns {Relation}
+     */
+     static followedBy() {
+        return Relation("followed by");
+    }
+
+}
+class Reference {
+
+    /**
+     * 
+     * @param {TimeStamp} timestamp 
+     * @param {any} value 
+     * @param {Relation} relation 
+     * @param {any} referencedBy 
+     */
+    constructor(timestamp, value, relation, referencedBy) {
+        this.timestamp = timestamp;
+        this.value = value;
+        this.relation = relation;
+        this.referencedBy = referencedBy;
+    }
+
+}
+class UserSnapshot {
+
+    /**
+     * @class
+     * @param {TimeStamp} timestamp
+     * @param {Object} user 
+     * @param {String} [ user.link ]
+     * @param {String} [ user.username ]
+     * @param {String} [ user.description ]
+     * @param {Number} [ user.postsCount ]
+     * @param {Number} [ user.followersCount ]
+     * @param {Number} [ user.followingCount ]
+     * @param {Post[]} [ user.posts ]
+     * @param {User[]} [ user.followers ]
+     * @param {User[]} [ user.following ]
+     * @property {TimeStamp} timestamp
+     * @property {String} [ link ]
+     * @property {String} [ username ]
+     * @property {String} [ description ]
+     * @property {Number} [ postsCount ]
+     * @property {Number} [ followersCount ]
+     * @property {Number} [ followingCount ]
+     * @property {Post[]} [ posts ]
+     * @property {User[]} [ followers ]
+     * @property {User[]} [ following ]
+     */
+    constructor(timestamp, { link, username, description, postsCount, followersCount, followingCount, posts, followers, following }) {
+        this.timestamp = timestamp;
+        this.link = link;
+        this.username = username;
+        this.description = description;
+        this.postsCount = postsCount;
+        this.followersCount = followersCount;
+        this.followingCount = followingCount;
+        this.posts = posts;
+        this.followers = followers;
+        this.following = following;
+    }
+
+}
+
+class FragmentType {
+
+    /**
+     * @class
+     * @param {String} type 
+     */
+    constructor(type) {
+        this.type = type;
+    }
+
+    /**
+     * 
+     * @returns {FragmentType}
+     */
+    static user() {
+        return new FragmentType("user");
+    }
+    /**
+     * 
+     * @returns {FragmentType}
+     */
+    static post() {
+        return new FragmentType("post");
+    } 
+    /**
+     * 
+     * @returns {FragmentType}
+     */
+    static searchResult() {
+        return new FragmentType("searchResult");
+    }
+    /**
+     * @returns {FragmentType}
+     */
+    static none() {
+        return new FragmentType("none");
+    }
+
+}
+class Fragment {
+
+    /**
+     * @class
+     * @param {TimeStamp} timestamp
+     * @param {FragmentType} type
+     * @param {Object} value 
+     * @param {String} [ value.link ]
+     * @param {String} [ value.username ]
+     * @param {String} [ value.description ]
+     * @param {Number} [ value.postsCount ]
+     * @param {Number} [ value.followersCount ]
+     * @param {Number} [ value.followingCount ]
+     * @param {Fragment[]} [ value.posts ]
+     * @param {Fragment[]} [ value.followers ]
+     * @param {Fragment[]} [ value.following ]
+     * @param {Fragment} [ value.author ]
+     * @param {Number} [ value.likes ]
+     * @param {String} [ value.title ]
+     * @param {Boolean} [ value.isHashtag ]
+     * @property {TimeStamp} timestamp
+     * @property {FragmentType} type
+     * @property {String} [ link ]
+     * @property {String} [ username ]
+     * @property {String} [ description ]
+     * @property {Number} [ postsCount ]
+     * @property {Number} [ followersCount ]
+     * @property {Number} [ followingCount ]
+     * @property {Fragment[]} [ posts ]
+     * @property {Fragment[]} [ followers ]
+     * @property {Fragment[]} [ following ]
+     * @property {Fragment} [ author ]
+     * @property {Number} [ likes ]
+     * @property {String} [ title ]
+     * @property {Boolean} [ isHashtag ]
+     */
+    constructor(timestamp, type, { link, username, description, postsCount, followersCount, followingCount, posts, followers, following, author, likes, title, isHashtag }) {
+        this.timestamp = timestamp;
+        this.type = type;
+
+        this.link = link;
+        this.username = username;
+        this.description = description;
+        this.postsCount = postsCount;
+        this.followersCount = followersCount;
+        this.followingCount = followingCount;
+        this.posts = posts;
+        this.followers = followers;
+        this.following = following;
+        this.author = author;
+        this.likes = likes;
+        this.title = title;
+        this.isHashtag = isHashtag;
+    }
+
+    /**
+     * 
+     * @param {User | Post | SearchResult | UserDetails | PostDetails} element 
+     */
+    static from(element) {
+        const timestamp = TimeStamp.now();
+
+        if(typeof element === UserDetails) {
+            return new Fragment(timestamp, FragmentType.user(), {
+                link: element.link,
+                username: element.username,
+                description: element.description,
+                postsCount: element.posts,
+                followersCount: element.followersCount,
+                followingCount: element.followingCount,
+            });
+        } else if(typeof element === User) {
+            return new Fragment(timestamp, FragmentType.user(), {
+                link: element.link,
+                username: element.username,
+                description: element.description,
+            });
+        } else if(typeof element === PostDetails) {
+            return new Fragment(timestamp, FragmentType.post(), {
+                link: element.link,
+                author: element.author,
+                likes: element.likes
+            });
+        } else if(typeof element === Post) {
+            return new Fragment(timestamp, FragmentType.post(), {
+                link: element.link
+            });
+        } else if(typeof element === SearchResult) {
+            return new Fragment(timestamp, FragmentType.searchResult(), {
+                link: element.link,
+                title: element.title,
+                description: element.description,
+                isHashtag: element.isHashtag
+            });
+        } else {
+            return new Fragment(timestamp, FragmentType.none, {});
+        }
+    }
+
+
+
+}
+
+class Snapshot {
+
+    /**
+     * @class
+     * @param {Reference[]} [ references = []]
+     */
+    constructor(references = []) {
+        this.references = references;
+    }
+
+    find(username) {
+
+
+
+    }
+
+    insertSearchResult(element) {
+        
+    }
+
+}
+
+const timestamp = TimeStamp.now();
+const reference = new Reference(timestamp, );
+
+module.exports = {
+    Snapshot 
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cache.html">Cache</a></li><li><a href="Comment.html">Comment</a></li><li><a href="FollowerList.html">FollowerList</a></li><li><a href="FollowingList.html">FollowingList</a></li><li><a href="Fragment.html">Fragment</a></li><li><a href="FragmentType.html">FragmentType</a></li><li><a href="IBError.html">IBError</a></li><li><a href="IBGotoError.html">IBGotoError</a></li><li><a href="IBLoginError.html">IBLoginError</a></li><li><a href="InstagramBot.html">InstagramBot</a></li><li><a href="Post.html">Post</a></li><li><a href="PostDetails.html">PostDetails</a></li><li><a href="Reference.html">Reference</a></li><li><a href="Relation.html">Relation</a></li><li><a href="SearchResult.html">SearchResult</a></li><li><a href="Snapshot.html">Snapshot</a></li><li><a href="TimeStamp.html">TimeStamp</a></li><li><a href="User.html">User</a></li><li><a href="UserDetails.html">UserDetails</a></li><li><a href="UserSnapshot.html">UserSnapshot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#clickOnButton">clickOnButton</a></li><li><a href="global.html#clickOnDiv">clickOnDiv</a></li><li><a href="global.html#clickOnElement">clickOnElement</a></li><li><a href="global.html#clickOnElements">clickOnElements</a></li><li><a href="global.html#dismissCookiePopup">dismissCookiePopup</a></li><li><a href="global.html#elementExists">elementExists</a></li><li><a href="global.html#evaluate">evaluate</a></li><li><a href="global.html#loadElementsFromList">loadElementsFromList</a></li><li><a href="global.html#scroll">scroll</a></li><li><a href="global.html#scrollBy">scrollBy</a></li><li><a href="global.html#StringToNumber">StringToNumber</a></li><li><a href="global.html#wait">wait</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Wed Jun 02 2021 21:59:54 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

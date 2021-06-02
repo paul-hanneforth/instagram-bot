@@ -5,12 +5,6 @@ const { errorMessage } = require("./message.js");
 const { IBError, IBLoginError, IBGotoError } = require("./error.js");
 const { SearchResult, User, UserDetails, Post, PostDetails, Comment } = require("./class.js");
 const { StringToNumber } = require("./format.js");
-const log = require("@paul-hanneforth/log");
-
-log.action = {};
-log.action.goto = new log.Decorator("goto", log.Color.bgBlue);
-
-const allowLog = true;
 
 /**
  * 
@@ -59,8 +53,6 @@ const getCookies = async (page) => {
  * @returns {Promise<any>}
  */
 const goto = async (page, identifier) => {
-    if(allowLog) log(`Trying to goto ${identifier} ...`, log.action.goto);
-
     try {
 
         const link = identifier instanceof SearchResult ? identifier.link :
@@ -110,7 +102,6 @@ const goto = async (page, identifier) => {
         }
 
     } catch(e) {
-        if(allowLog) log(`Failed to goto ${identifier} because of ${e.message}!`, log.type.error, log.priority.medium, log.action.goto);
         throw new IBGotoError(errorMessage.failedToGotoIdentifier.code, errorMessage.failedToGotoIdentifier.message, identifier, e);
     }
 };

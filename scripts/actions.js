@@ -208,6 +208,5 @@ module.exports = {
     unfollow,
     commentPost,
     likePost,
-    unlikePost,
-
+    unlikePost
 };

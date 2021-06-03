@@ -2,6 +2,8 @@ const actions = require("./scripts/actions.js");
 const data = require("./scripts/data.js");
 const misc = require("./scripts/misc.js");
 const navigation = require("./scripts/navigation.js");
+const popup = require("./scripts/popup.js");
+const observer = require("./scripts/observer.js");
 
 const puppeteer = require("puppeteer");
 const { IBError } = require("./error.js");
@@ -71,7 +73,26 @@ class InstagramBot {
         // check if page is already authenticated
         const isAuthenticated = await data.isAuthenticated(page);
 
-        return new InstagramBot(browser, page, isAuthenticated);
+        // create bot
+        const bot = await new InstagramBot(browser, page, isAuthenticated);
+
+        // add observer to bot
+        await bot.addObserver(async () => {
+            // will execute everytime the page changes
+            await popup.dismissCookiePopup(page);
+            await popup.dismissNotificationPopup(page);
+        });
+
+        return bot;
+    }
+
+    /**
+     * 
+     * @param {Function} func 
+     * @returns {Promise}
+     */
+    async addObserver(func) {
+        await observer.addObserver(this.page, func);
     }
 
     /**

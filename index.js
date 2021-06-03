@@ -104,11 +104,24 @@ class InstagramBot {
     }
 
     /**
+     * stops the bot
+     * @returns {Promise<void>}
+     */
+    async stop() {
+        await this.page.close();
+        await this.browser.close();
+        await this.browser.disconnect();
+        await this.queue.stop();
+    }
+
+    /**
      * 
      * @param {Function} func 
      * @returns {Promise}
      */
     async addObserver(func) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+
         await observer.addObserver(this.page, func);
     }
 
@@ -116,6 +129,8 @@ class InstagramBot {
      * @returns {Promise<Object>}
      */
     async getCookies() {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+
         const cookies = await this.queue.push(() => data.getCookies(this.page));
 
         return cookies;
@@ -128,6 +143,8 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async login(username, password) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+
         await this.queue.push(() => actions.login(this.page, username, password));
 
         this.username = username;
@@ -139,6 +156,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async logout() {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) return;
 
         await this.queue.push(() => actions.logout(this.page, this.username));
@@ -154,6 +172,7 @@ class InstagramBot {
      * @returns {Promise<User[]>}
      */
     async getFollowing(identifier, minLength = 50) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const following = await this.queue.push(() => data.getFollowing(this.page, identifier, minLength));
@@ -168,6 +187,7 @@ class InstagramBot {
      * @returns {Promise<User[]>}
      */
     async getFollower(identifier, minLength = 50) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const follower = await this.queue.push(() => data.getFollower(this.page, identifier, minLength));
@@ -181,6 +201,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async follow(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.queue.push(() => actions.follow(this.page, identifier));
@@ -192,6 +213,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
      async unfollow(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.queue.push(() => actions.unfollow(this.page, identifier));
@@ -203,6 +225,7 @@ class InstagramBot {
      * @returns {Promise<Boolean>} whether you are following the specified user or not
      */
     async isFollowing(userIdentifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const result = await this.queue.push(() => data.isFollowing(this.page, userIdentifier));
@@ -215,6 +238,7 @@ class InstagramBot {
      * @returns {Promise<SearchResult[]>}
      */
     async search(searchTerm) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const searchResults = await this.queue.push(() => navigation.search(this.page, searchTerm));
@@ -227,6 +251,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async goto(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.queue.push(() => navigation.goto(this.page, identifier));
@@ -238,6 +263,7 @@ class InstagramBot {
      * @returns {Promise<UserDetails>}
      */
     async getUserDetails(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const userDetails = await this.queue.push(() => data.getUserDetails(this.page, identifier));
@@ -251,6 +277,7 @@ class InstagramBot {
      * @returns {Promise<Post[]>}
      */
     async getPosts(identifier, minLength = 50) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const posts = await this.queue.push(() => data.getPosts(this.page, identifier, minLength));
@@ -263,6 +290,7 @@ class InstagramBot {
      * @returns {Promise<PostDetails>}
      */
     async getPostDetails(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const postDetails = await this.queue.push(() => data.getPostDetails(this.page, identifier));
@@ -275,6 +303,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async likePost(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.queue.push(() => actions.likePost(this.page, identifier));
@@ -286,6 +315,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async unlikePost(identifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.queue.push(() => actions.unlikePost(this.page, identifier));
@@ -298,6 +328,7 @@ class InstagramBot {
      * @returns {Promise<any>}
      */
     async commentPost(postIdentifier, comment) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         await this.queue.push(() => actions.commentPost(this.page, postIdentifier, comment));
@@ -310,6 +341,7 @@ class InstagramBot {
      * @returns {Promise<Comment[]>}
      */
     async getPostComments(postIdentifier, minComments = 5) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const comments = await this.queue.push(() => data.getPostComments(this.page, postIdentifier, minComments));

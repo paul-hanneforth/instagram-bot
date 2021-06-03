@@ -14,16 +14,22 @@ class Queue {
 
     constructor() {
         this.list = [];
+        this.shouldRun = true;
 
         // start running Queue
         this.run();
     }
     async run() {
+        if(!this.shouldRun) return;
+
         if(this.list.length > 0) {
             await this.list[0]();
             this.list.splice(0, 1);
         }
-        setTimeout(() => this.run(), 1000);
+        this.timeout = setTimeout(() => this.run(), 1000);
+    }
+    stop() {
+        this.shouldRun = false;
     }
     push(func) {
         return new Promise((resolve, reject) => {
@@ -84,6 +90,17 @@ class InstagramBot {
         });
 
         return bot;
+    }
+
+    /**
+     * closes the browser
+     * @returns {Promise<void>}
+     */
+    async close() {
+        await this.page.close();
+        await this.browser.close();
+        await this.browser.disconnect();
+        await this.queue.stop();
     }
 
     /**

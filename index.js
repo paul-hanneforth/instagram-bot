@@ -8,7 +8,7 @@ const observer = require("./scripts/observer.js");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 
-const { IBError } = require("./error.js");
+const { IBError, IBLoginError } = require("./error.js");
 const { errorMessage } = require("./message.js");
 const { SearchResult, User, UserDetails } = require("./class.js");
 
@@ -188,7 +188,7 @@ class InstagramBot {
      */
     async login(username, password) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
-        if(this.authenticated) throw new IBError(errorMessage.botAlreadyAuthenticated.code, errorMessage.botAlreadyAuthenticated.message);
+        if(this.authenticated) throw new IBLoginError(errorMessage.botAlreadyAuthenticated.code, errorMessage.botAlreadyAuthenticated.message);
 
         await this.queue.push(() => actions.login(this.page, username, password));
 

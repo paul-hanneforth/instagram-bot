@@ -1,7 +1,7 @@
 class IBError extends Error {
 
     /**
-     * 
+     * @augments Error
      * @param {Number} code 
      * @param {String} message 
      * @param {Error} [error]
@@ -21,7 +21,7 @@ class IBError extends Error {
 class IBLoginError extends IBError {
 
     /**
-     * 
+     * @augments IBError
      * @param {Number} code 
      * @param {String} message 
      * @param {String} username 
@@ -41,7 +41,7 @@ class IBLoginError extends IBError {
 class IBGotoError extends IBError {
 
     /**
-     * 
+     * @augments IBError
      * @param {Number} code 
      * @param {String} message 
      * @param {any} goal 

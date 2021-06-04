@@ -11,6 +11,7 @@ const fs = require("fs");
 const { IBError, IBLoginError } = require("./error.js");
 const { errorMessage } = require("./message.js");
 const { SearchResult, User, UserDetails } = require("./class.js");
+const { Cache } = require("./cache.js");
 
 class Queue {
 
@@ -59,6 +60,7 @@ class InstagramBot {
      * @property {Queue} queue
      * @property {Boolean} authenticated
      * @property {String} username
+     * @property {Cache} cache
      */
     constructor(browser, page, authenticated = false) {
         this.browser = browser;
@@ -66,6 +68,7 @@ class InstagramBot {
         this.queue = new Queue();
         this.authenticated = authenticated;
         this.username = null;
+        this.cache = Cache.empty();
     }
 
     /**
@@ -222,6 +225,11 @@ class InstagramBot {
 
         const following = await this.queue.push(() => data.getFollowing(this.page, identifier, minLength));
 
+        // store data in cache, if types are compatible
+        if(identifier instanceof User) {
+            this.cache = this.cache.addFollowingList(identifier, following);
+        }
+
         return following;
     }
 
@@ -236,6 +244,11 @@ class InstagramBot {
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
         const follower = await this.queue.push(() => data.getFollower(this.page, identifier, minLength));
+
+        // store data in cache, if types are compatible
+        if(identifier instanceof User) {
+            this.cache = this.cache.addFollowerList(identifier, follower);
+        }
 
         return follower;
     }

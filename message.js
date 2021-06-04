@@ -11,7 +11,8 @@ const errorCode = {
     10: "Account couldn't be found!",
     11: "Account is private. You need to follow the account first, to request data!",
     12: "Browser is not running!",
-    13: "Failed to load session!"
+    13: "Failed to load session!",
+    14: "The bot is already authenticated!"
 };
 const errorTemplate = (code) => {
     return {
@@ -32,7 +33,8 @@ const errorMessage = {
     "accountNotFound": errorTemplate(10),
     "accountPrivate": errorTemplate(11),
     "browserNotRunning": errorTemplate(12),
-    "failedToLoadSession": errorTemplate(13)
+    "failedToLoadSession": errorTemplate(13),
+    "botAlreadyAuthenticated": errorTemplate(14)
 };
 
 module.exports = { errorMessage };

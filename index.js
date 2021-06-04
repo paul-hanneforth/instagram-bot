@@ -188,6 +188,7 @@ class InstagramBot {
      */
     async login(username, password) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+        if(this.authenticated) throw new IBError(errorMessage.botAlreadyAuthenticated.code, errorMessage.botAlreadyAuthenticated.message);
 
         await this.queue.push(() => actions.login(this.page, username, password));
 

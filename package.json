@@ -17,6 +17,7 @@
   "author": "Paul Hanneforth",
   "license": "ISC",
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.25.0"
   },
   "dependencies": {

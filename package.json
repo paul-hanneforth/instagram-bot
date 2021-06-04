@@ -1,6 +1,6 @@
 {
   "name": "@paul-hanneforth/instagram-bot",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   "author": "Paul Hanneforth",
   "license": "ISC",
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.25.0"
   },
   "dependencies": {

@@ -9,7 +9,10 @@ const errorCode = {
     8: "The page isn't available!",
     9: "Can't comment on post!",
     10: "Account couldn't be found!",
-    11: "Account is private. You need to follow the account first, to request data!"
+    11: "Account is private. You need to follow the account first, to request data!",
+    12: "Browser is not running!",
+    13: "Failed to load session!",
+    14: "The bot is already authenticated!"
 };
 const errorTemplate = (code) => {
     return {
@@ -28,7 +31,10 @@ const errorMessage = {
     "pageNotAvailable": errorTemplate(8),
     "cantCommentPost": errorTemplate(9),
     "accountNotFound": errorTemplate(10),
-    "accountPrivate": errorTemplate(11)
+    "accountPrivate": errorTemplate(11),
+    "browserNotRunning": errorTemplate(12),
+    "failedToLoadSession": errorTemplate(13),
+    "botAlreadyAuthenticated": errorTemplate(14)
 };
 
 module.exports = { errorMessage };

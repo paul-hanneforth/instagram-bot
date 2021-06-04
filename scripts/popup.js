@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer");
-const tools = require("./tools.js");
+const tools = require("../tools.js");
 
 /**
  * 

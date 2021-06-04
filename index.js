@@ -6,6 +6,8 @@ const popup = require("./scripts/popup.js");
 const observer = require("./scripts/observer.js");
 
 const puppeteer = require("puppeteer");
+const fs = require("fs");
+
 const { IBError } = require("./error.js");
 const { errorMessage } = require("./message.js");
 const { SearchResult, User, UserDetails } = require("./class.js");
@@ -69,11 +71,12 @@ class InstagramBot {
     /**
      * 
      * @param {Boolean} [ headless = false ]  
-     * @param {Object} [ cookies = [] ]
+     * @param {Object} [ session = {} ]
      * @returns {Promise<InstagramBot>}
      */
-    static async launch(headless = false, cookies = []) {
+    static async launch(headless = false, session = {}) {
         const browser = await misc.launchBrowser({ headless });
+        const cookies = session.cookies ? session.cookies : [];
         const page = await misc.newPage(browser, "en", cookies);
 
         // check if page is already authenticated
@@ -90,6 +93,23 @@ class InstagramBot {
         });
 
         return bot;
+    }
+
+    /**
+     * 
+     * @param {String} filePath 
+     * @returns {Promise<Object>} session, which probably stores your credentials
+     */
+    static async loadSession(filePath) {
+        try {
+
+            const raw = await fs.promises.readFile(filePath);
+            const session = JSON.parse(raw);
+            return session;
+
+        } catch(e) {
+            throw new IBError(errorMessage.failedToLoadSession.code, errorMessage.failedToLoadSession.message, e);
+        }
     }
 
     /**
@@ -134,6 +154,30 @@ class InstagramBot {
         const cookies = await this.queue.push(() => data.getCookies(this.page));
 
         return cookies;
+    }
+
+    /**
+     * 
+     * @returns {Promise<Object>} session, which normally stores credentials
+     */
+    async getSession() {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+
+        const cookies = await this.getCookies();
+        return { cookies };
+    }
+
+    /**
+     * 
+     * @param {String} filePath 
+     * @returns {Promise}
+     */
+    async saveSession(filePath) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+
+        const session = await this.getSession();
+        const text = JSON.stringify(session);
+        await fs.promises.writeFile(filePath, text);
     }
 
     /**

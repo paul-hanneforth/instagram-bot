@@ -10,7 +10,8 @@ const errorCode = {
     9: "Can't comment on post!",
     10: "Account couldn't be found!",
     11: "Account is private. You need to follow the account first, to request data!",
-    12: "Browser is not running!"
+    12: "Browser is not running!",
+    13: "Failed to load session!"
 };
 const errorTemplate = (code) => {
     return {
@@ -30,7 +31,8 @@ const errorMessage = {
     "cantCommentPost": errorTemplate(9),
     "accountNotFound": errorTemplate(10),
     "accountPrivate": errorTemplate(11),
-    "browserNotRunning": errorTemplate(12)
+    "browserNotRunning": errorTemplate(12),
+    "failedToLoadSession": errorTemplate(13)
 };
 
 module.exports = { errorMessage };

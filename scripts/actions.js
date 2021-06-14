@@ -3,7 +3,7 @@ const tools = require("./../tools.js");
 const popup = require("./popup.js");
 const { errorMessage } = require("./../message.js");
 const { IBError, IBLoginError } = require("./../error.js");
-const { SearchResult, User, Post } = require("./../class.js");
+const { SearchResult, User, Post } = require("../types.js");
 const { goto } = require("./navigation.js");
 
 /**

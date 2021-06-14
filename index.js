@@ -78,7 +78,8 @@ class InstagramBot {
      * @returns {Promise<InstagramBot>}
      */
     static async launch(headless = false, session = {}) {
-        const browser = await misc.launchBrowser({ headless });
+        const args = ["--no-sandbox", "--disable-setuid-sandbox"];
+        const browser = await misc.launchBrowser({ headless, args });
         const cookies = session.cookies ? session.cookies : [];
         const page = await misc.newPage(browser, "en", cookies);
 

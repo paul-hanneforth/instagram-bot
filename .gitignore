@@ -4,3 +4,4 @@ gen-docs.cmd
 test.js
 dev.js
 session.json
+.env

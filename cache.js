@@ -1,4 +1,4 @@
-const { SearchResult, User, UserDetails, Post, PostDetails } = require("./class.js");
+const { SearchResult, User, UserDetails, Post, PostDetails } = require("./types.js");
 
 class FollowingList {
 

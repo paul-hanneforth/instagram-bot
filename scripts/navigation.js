@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const tools = require("./../tools.js");
 const { errorMessage } = require("./../message.js");
 const { IBError, IBGotoError } = require("./../error.js");
-const { SearchResult, User, Post } = require("./../class.js");
+const { SearchResult, User, Post } = require("../types.js");
 
 /**
  * 

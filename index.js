@@ -10,7 +10,7 @@ const fs = require("fs");
 
 const { IBError, IBLoginError } = require("./error.js");
 const { errorMessage } = require("./message.js");
-const { SearchResult, User, UserDetails } = require("./class.js");
+const { SearchResult, User, UserDetails } = require("./types.js");
 const { Cache } = require("./cache.js");
 
 class Queue {

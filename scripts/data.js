@@ -376,6 +376,10 @@ const isAuthenticated = async (page) => {
     const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });
     const loginButtonExists = await tools.elementExists(page, "button", { innerHTML: "Log In" });
 
+    // search for error
+    const error = await page.evaluate(() => [...document.querySelectorAll("h2")].find((element) => element.innerHTML == "Error") ? true : false);
+    if(error) throw new IBError(errorMessage.errorWithoutReasoning.code, errorMessage.errorWithoutReasoning.message);
+
     return loginElementExists || loginButtonExists ? false : true;
 
 };

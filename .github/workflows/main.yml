@@ -8,4 +8,7 @@ jobs:
     - name: Install modules
       run: npm install
     - name: Run tests
+      env:
+        name: ${{ secrets.NAME }}
+        passwd: ${{ secrets.PASSWD }}
       run: npm test

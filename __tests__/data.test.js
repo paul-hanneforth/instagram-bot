@@ -6,6 +6,8 @@ const InstagramBot = require("../index.js");
 describe("testing data fetching", () => {
     jest.setTimeout(1000 * 60 * 2);
 
+    const headless = true;
+
     const username = process.env.name;
     const password = process.env.passwd;
 
@@ -15,7 +17,7 @@ describe("testing data fetching", () => {
     var bot;
 
     test("it should start the bot", async () => {
-        bot = await InstagramBot.launch(false);
+        bot = await InstagramBot.launch(headless);
     });
 
     test("it should authenticate the bot", async () => {

@@ -13,7 +13,8 @@ const errorCode = {
     12: "Browser is not running!",
     13: "Failed to load session!",
     14: "The bot is already authenticated!",
-    15: "An error was thrown without reasoning by instagram."
+    15: "An error was thrown without reasoning by instagram.",
+    16: "Username couldn't be extracted!"
 };
 const errorTemplate = (code) => {
     return {
@@ -36,7 +37,8 @@ const errorMessage = {
     "browserNotRunning": errorTemplate(12),
     "failedToLoadSession": errorTemplate(13),
     "botAlreadyAuthenticated": errorTemplate(14),
-    "errorWithoutReasoning": errorTemplate(15)
+    "errorWithoutReasoning": errorTemplate(15),
+    "usernameNotExtracted": errorTemplate(16)
 };
 
 module.exports = { errorMessage };

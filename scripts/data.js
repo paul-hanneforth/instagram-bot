@@ -261,7 +261,9 @@ const getPostDetails = async (page, identifier) => {
 
     const postId = link.split("/")[4];
 
-    const username = await page.evaluate(() => [...document.querySelectorAll(".sqdOP.yWX7d._8A5w5.ZIAjV")][0].innerText);
+    const linksOnPage = await page.evaluate(() => [...document.querySelectorAll("a")].map(el => el.href));
+    if(linksOnPage.length == 0) throw new IBError(errorMessage.usernameNotExtracted.code, errorMessage.usernameNotExtracted.username);
+    const username = linksOnPage[0].split("/")[3];
     const user = new User(`https://www.instagram.com/${username}/`, username, null);
 
     const likesStr = await page.evaluate((postId) => {

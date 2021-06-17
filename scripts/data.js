@@ -300,6 +300,7 @@ const getPostComments = async (page, postIdentifier, minComments = 5) => {
      */
     const getLoadedComments = () => page.evaluate(() => {
         const box = document.querySelector(".XQXOT");
+        if(!box) return []; // if the box is undefined, return an empty array
         const elements = [...box.children].filter((e, i) => i != 0);
         const loadedComments = elements.map(element => { 
             const textEl = [...element.querySelectorAll("span")]

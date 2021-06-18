@@ -23,20 +23,26 @@ const evaluate = async (page, js, args) => {
  * 
  * @param {puppeteer.Page} page 
  * @param {String} querySelector 
- * @param {Object} property 
+ * @param {Object} properties 
+ * @returns {Promise<Boolean>} whether an element has been clicked or not
  */
-const clickOnElements = async (page, querySelector, property) => {
-    await evaluate(page, (args) => {
-        const elements = [...document.querySelectorAll(args.querySelector)];
-        const keysProp = Object.keys((args.property ? args.property : {}));
-        elements.forEach((element) => {
-            const matchesProperties = keysProp.reduce((acc, cur) => {
-                if (args.property[cur] == element[cur]) return true;
+const clickOnElements = async (page, querySelector, properties) => {
+    const clickedOnElement = await page.evaluate(({ querySelector, properties }) => {
+        const elements = [...document.querySelectorAll(querySelector)];
+        const keys = Object.keys(properties ? properties : {});
+        const matchedElements = elements.filter(element => {
+            const matchesAllProperties = keys.reduce((acc, cur) => {
+                if(!acc) return false;
+                if(properties[cur] == element[cur]) return true;
                 return false;
             }, true);
-            if (matchesProperties) element.click();
+            return matchesAllProperties;
         });
-    }, { querySelector, property });
+        matchedElements.forEach(element => element.click());
+        if(matchedElements.length > 0) return true;
+        return false;
+    }, { querySelector, properties });
+    return clickedOnElement;
 };
 
 /**

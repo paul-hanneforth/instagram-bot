@@ -3,6 +3,7 @@ const data = require("./scripts/data.js");
 const misc = require("./scripts/misc.js");
 const navigation = require("./scripts/navigation.js");
 const popup = require("./scripts/popup.js");
+const notification = require("./scripts/notification.js");
 const observer = require("./scripts/observer.js");
 
 const puppeteer = require("puppeteer");
@@ -406,6 +407,19 @@ class InstagramBot {
         const comments = await this.queue.push(() => data.getPostComments(this.page, postIdentifier, minComments));
         return comments;
     }
+
+    /**
+     * 
+     * @param {String | SearchResult | User} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+     * @param {String} message 
+     * @returns {Promise<void>}
+     */
+    async directMessageUser(userIdentifier, message) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        await this.queue.push(() => notification.directMessageUser(this.page, userIdentifier, message));
+    }   
 
 }
 

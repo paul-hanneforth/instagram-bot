@@ -113,5 +113,6 @@ const search = async (page, searchTerm) => {
 };
 
 module.exports = {
-    goto, search
+    goto, 
+    search,
 };

@@ -12,7 +12,14 @@ const errorCode = {
     11: "Account is private. You need to follow the account first, to request data!",
     12: "Browser is not running!",
     13: "Failed to load session!",
-    14: "The bot is already authenticated!"
+    14: "The bot is already authenticated!",
+    15: "An error was thrown without reasoning by instagram.",
+    16: "Username couldn't be extracted!",
+    17: "Failed to click on message element!",
+    18: "Failed to open message channel! This can be caused by you not following the user!",
+    19: "Failed to click on 'Send' button!",
+    20: "Failed to send message!",
+    21: "Failed to type message!"
 };
 const errorTemplate = (code) => {
     return {
@@ -34,7 +41,14 @@ const errorMessage = {
     "accountPrivate": errorTemplate(11),
     "browserNotRunning": errorTemplate(12),
     "failedToLoadSession": errorTemplate(13),
-    "botAlreadyAuthenticated": errorTemplate(14)
+    "botAlreadyAuthenticated": errorTemplate(14),
+    "errorWithoutReasoning": errorTemplate(15),
+    "usernameNotExtracted": errorTemplate(16),
+    "failedToClickOnMessageElement": errorTemplate(17),
+    "failedToOpenMessageChannel": errorTemplate(18),
+    "failedToClickOnSendButton": errorTemplate(19),
+    "failedToSendMessage": errorTemplate(20),
+    "failedToTypeMessage": errorTemplate(21)
 };
 
 module.exports = { errorMessage };

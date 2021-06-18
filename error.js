@@ -58,9 +58,26 @@ class IBGotoError extends IBError {
     }
 
 }
+class IBPuppeteerError extends IBError {
+
+    /**
+     * @augments IBError
+     * @param {Number} code 
+     * @param {String} message 
+     * @param {Error} [ error ] 
+     * @property {Number} code
+     * @property {String} errorMessage
+     * @property {Error} [parentError]
+     */
+    constructor(code, message, error) {
+        super(code, message, error);
+    }
+
+}
 
 module.exports = {
     IBError,
     IBLoginError,
-    IBGotoError
+    IBGotoError,
+    IBPuppeteerError
 };

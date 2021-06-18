@@ -261,7 +261,9 @@ const getPostDetails = async (page, identifier) => {
 
     const postId = link.split("/")[4];
 
-    const username = await page.evaluate(() => [...document.querySelectorAll(".sqdOP.yWX7d._8A5w5.ZIAjV")][0].innerText);
+    const linksOnPage = await page.evaluate(() => [...document.querySelectorAll("a")].map(el => el.href));
+    if(linksOnPage.length == 0) throw new IBError(errorMessage.usernameNotExtracted.code, errorMessage.usernameNotExtracted.username);
+    const username = linksOnPage[0].split("/")[3];
     const user = new User(`https://www.instagram.com/${username}/`, username, null);
 
     const likesStr = await page.evaluate((postId) => {
@@ -298,6 +300,7 @@ const getPostComments = async (page, postIdentifier, minComments = 5) => {
      */
     const getLoadedComments = () => page.evaluate(() => {
         const box = document.querySelector(".XQXOT");
+        if(!box) return []; // if the box is undefined, return an empty array
         const elements = [...box.children].filter((e, i) => i != 0);
         const loadedComments = elements.map(element => { 
             const textEl = [...element.querySelectorAll("span")]
@@ -375,6 +378,10 @@ const isAuthenticated = async (page) => {
     // check if 'Login' button is present
     const loginElementExists = await tools.elementExists(page, "div", { innerHTML: "Log In" });
     const loginButtonExists = await tools.elementExists(page, "button", { innerHTML: "Log In" });
+
+    // search for error
+    const error = await page.evaluate(() => [...document.querySelectorAll("h2")].find((element) => element.innerHTML == "Error") ? true : false);
+    if(error) throw new IBError(errorMessage.errorWithoutReasoning.code, errorMessage.errorWithoutReasoning.message);
 
     return loginElementExists || loginButtonExists ? false : true;
 

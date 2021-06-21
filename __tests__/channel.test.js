@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const InstagramBot = require("../index.js");
 
-describe("testing notifications", () => {
+describe("testing channels (direct messages)", () => {
     jest.setTimeout(1000 * 60 * 2);
 
     const headless = true;

@@ -3,7 +3,7 @@ const data = require("./scripts/data.js");
 const misc = require("./scripts/misc.js");
 const navigation = require("./scripts/navigation.js");
 const popup = require("./scripts/popup.js");
-const notification = require("./scripts/notification.js");
+const channel = require("./scripts/channel.js");
 const observer = require("./scripts/observer.js");
 
 const puppeteer = require("puppeteer");
@@ -461,7 +461,7 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const action = new Action(() => notification.directMessageUser(this.page, userIdentifier, message));
+        const action = new Action(() => channel.directMessageUser(this.page, userIdentifier, message));
         await this.queue.push(action);
     }   
 
@@ -475,7 +475,7 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const action = new Action(() => notification.getChannelMessages(this.page, userIdentifier));
+        const action = new Action(() => channel.getChannelMessages(this.page, userIdentifier));
         const messages = await this.queue.push(action);
         return messages;
     }

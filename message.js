@@ -19,7 +19,8 @@ const errorCode = {
     18: "Failed to open message channel! This can be caused by you not following the user!",
     19: "Failed to click on 'Send' button!",
     20: "Failed to send message!",
-    21: "Failed to type message!"
+    21: "Failed to type message!",
+    22: "Failed to login because Instagram detected unusual login attempts on your account. Please check your inbox to verify your login attempt!"
 };
 const errorTemplate = (code) => {
     return {
@@ -48,7 +49,8 @@ const errorMessage = {
     "failedToOpenMessageChannel": errorTemplate(18),
     "failedToClickOnSendButton": errorTemplate(19),
     "failedToSendMessage": errorTemplate(20),
-    "failedToTypeMessage": errorTemplate(21)
+    "failedToTypeMessage": errorTemplate(21),
+    "unusualLoginAttempt": errorTemplate(22)
 };
 
 module.exports = { errorMessage };

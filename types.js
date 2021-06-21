@@ -114,11 +114,28 @@ class Comment {
 
 }
 
+class DirectMessage {
+
+    /**
+     * 
+     * @param {String} text 
+     * @param {Boolean} sentByUser 
+     * @property {String} text
+     * @property {Boolean} sentByUser
+     */
+    constructor(text, sentByUser) {
+        this.text = text;
+        this.sentByUser = sentByUser;
+    }
+
+}
+
 module.exports = {
     SearchResult,
     User,
     UserDetails,
     Post,
     PostDetails,
-    Comment
+    Comment,
+    DirectMessage
 };

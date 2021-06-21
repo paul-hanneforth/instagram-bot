@@ -11,7 +11,7 @@ const fs = require("fs");
 
 const { IBError, IBLoginError } = require("./error.js");
 const { errorMessage } = require("./message.js");
-const { SearchResult, User, UserDetails } = require("./types.js");
+const { SearchResult, User, UserDetails, DirectMessage } = require("./types.js");
 const { Cache } = require("./cache.js");
 
 class Action {
@@ -27,7 +27,7 @@ class Action {
      * @returns {Promise<any>}
      */
     async run() {
-        await this.func();
+        return (await this.func());
     }
     
 }
@@ -464,6 +464,21 @@ class InstagramBot {
         const action = new Action(() => notification.directMessageUser(this.page, userIdentifier, message));
         await this.queue.push(action);
     }   
+
+    /**
+     * 
+     * @param {puppeteer.Page} page 
+     * @param {User | SearchResult | String} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+     * @returns {Promise<DirectMessage[]>}
+     */
+    async getChannelMessages(userIdentifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const action = new Action(() => notification.getChannelMessages(this.page, userIdentifier));
+        const messages = await this.queue.push(action);
+        return messages;
+    }
 
 }
 

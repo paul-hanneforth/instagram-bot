@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const InstagramBot = require("../index.js");
 
-describe("testing notifications", () => {
+describe("testing channels (direct messages)", () => {
     jest.setTimeout(1000 * 60 * 2);
 
     const headless = true;
@@ -24,6 +24,10 @@ describe("testing notifications", () => {
 
     test(`it should direct message ${testingUsername} '${testingMessage}'`, async () => {
         await bot.directMessageUser(testingUsername, testingMessage);
+    });
+
+    test(`it should get all direct messages from ${testingUsername}`, async () => {
+        await bot.getChannelMessages(testingUsername);
     });
 
     test("it should logout", async () => {

@@ -3,7 +3,7 @@ const data = require("./scripts/data.js");
 const misc = require("./scripts/misc.js");
 const navigation = require("./scripts/navigation.js");
 const popup = require("./scripts/popup.js");
-const notification = require("./scripts/notification.js");
+const channel = require("./scripts/channel.js");
 const observer = require("./scripts/observer.js");
 
 const puppeteer = require("puppeteer");
@@ -11,11 +11,32 @@ const fs = require("fs");
 
 const { IBError, IBLoginError } = require("./error.js");
 const { errorMessage } = require("./message.js");
-const { SearchResult, User, UserDetails } = require("./types.js");
+const { SearchResult, User, UserDetails, DirectMessage } = require("./types.js");
 const { Cache } = require("./cache.js");
+
+class Action {
+
+    /**
+     * @constructor 
+     * @param {Function} func 
+     */
+    constructor(func) {
+        this.func = func;
+    }
+    /**
+     * @returns {Promise<any>}
+     */
+    async run() {
+        return (await this.func());
+    }
+    
+}
 
 class Queue {
 
+    /**
+     * @constructor
+     */
     constructor() {
         this.list = [];
         this.shouldRun = true;
@@ -35,11 +56,16 @@ class Queue {
     stop() {
         this.shouldRun = false;
     }
-    push(func) {
+    /**
+     * 
+     * @param {Action} action 
+     * @returns {Promise<any>}
+     */
+    push(action) {
         return new Promise((resolve, reject) => {
             this.list.push(async () => {
                 try {
-                    const result = await func();
+                    const result = await action.run();
                     resolve(result);
                 } catch(e) {
                     reject(e);
@@ -156,7 +182,8 @@ class InstagramBot {
     async getCookies() {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
 
-        const cookies = await this.queue.push(() => data.getCookies(this.page));
+        const action = new Action(() => data.getCookies(this.page));
+        const cookies = await this.queue.push(action);
 
         return cookies;
     }
@@ -195,7 +222,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(this.authenticated) throw new IBLoginError(errorMessage.botAlreadyAuthenticated.code, errorMessage.botAlreadyAuthenticated.message);
 
-        await this.queue.push(() => actions.login(this.page, username, password));
+        const action = new Action(() => actions.login(this.page, username, password));
+        await this.queue.push(action);
 
         this.username = username;
         this.authenticated = true;
@@ -209,7 +237,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) return;
 
-        await this.queue.push(() => actions.logout(this.page, this.username));
+        const action = new Action(() => actions.logout(this.page, this.username));
+        await this.queue.push(action);
 
         this.username = null;
         this.authenticated = false;
@@ -225,7 +254,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const following = await this.queue.push(() => data.getFollowing(this.page, identifier, minLength));
+        const action = new Action(() => data.getFollowing(this.page, identifier, minLength));
+        const following = await this.queue.push(action);
 
         // store data in cache, if types are compatible
         if(identifier instanceof User) {
@@ -245,7 +275,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const follower = await this.queue.push(() => data.getFollower(this.page, identifier, minLength));
+        const action = new Action(() => data.getFollower(this.page, identifier, minLength));
+        const follower = await this.queue.push(action);
 
         // store data in cache, if types are compatible
         if(identifier instanceof User) {
@@ -264,7 +295,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => actions.follow(this.page, identifier));
+        const action = new Action(() => actions.follow(this.page, identifier));
+        await this.queue.push(action);
     }
 
     /**
@@ -276,7 +308,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => actions.unfollow(this.page, identifier));
+        const action = new Action(() => actions.unfollow(this.page, identifier));
+        await this.queue.push(action);
     }
 
     /**
@@ -288,7 +321,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const result = await this.queue.push(() => data.isFollowing(this.page, userIdentifier));
+        const action = new Action(() => data.isFollowing(this.page, userIdentifier));
+        const result = await this.queue.push(action);
         return result;
     }
 
@@ -301,7 +335,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const searchResults = await this.queue.push(() => navigation.search(this.page, searchTerm));
+        const action = new Action(() => navigation.search(this.page, searchTerm));
+        const searchResults = await this.queue.push(action);
         return searchResults;
     }
 
@@ -314,7 +349,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => navigation.goto(this.page, identifier));
+        const action = new Action(() => navigation.goto(this.page, identifier));
+        await this.queue.push(action);
     }
 
     /**
@@ -326,7 +362,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const userDetails = await this.queue.push(() => data.getUserDetails(this.page, identifier));
+        const action = new Action(() => data.getUserDetails(this.page, identifier));
+        const userDetails = await this.queue.push(action);
         return userDetails;
     }
 
@@ -340,7 +377,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const posts = await this.queue.push(() => data.getPosts(this.page, identifier, minLength));
+        const action = new Action(() => data.getPosts(this.page, identifier, minLength));
+        const posts = await this.queue.push(action);
         return posts;
     }
 
@@ -353,7 +391,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const postDetails = await this.queue.push(() => data.getPostDetails(this.page, identifier));
+        const action = new Action(() => data.getPostDetails(this.page, identifier));
+        const postDetails = await this.queue.push(action);
         return postDetails;
     }
 
@@ -366,7 +405,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => actions.likePost(this.page, identifier));
+        const action = new Action(() => actions.likePost(this.page, identifier));
+        await this.queue.push(action);
     }
 
     /**
@@ -378,7 +418,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => actions.unlikePost(this.page, identifier));
+        const action = new Action(() => actions.unlikePost(this.page, identifier));
+        await this.queue.push(action);
     }
 
     /**
@@ -391,7 +432,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => actions.commentPost(this.page, postIdentifier, comment));
+        const action = new Action(() => actions.commentPost(this.page, postIdentifier, comment));
+        await this.queue.push(action);
     }
 
     /**
@@ -404,7 +446,8 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        const comments = await this.queue.push(() => data.getPostComments(this.page, postIdentifier, minComments));
+        const action = new Action(() => data.getPostComments(this.page, postIdentifier, minComments));
+        const comments = await this.queue.push(action);
         return comments;
     }
 
@@ -418,8 +461,24 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
-        await this.queue.push(() => notification.directMessageUser(this.page, userIdentifier, message));
+        const action = new Action(() => channel.directMessageUser(this.page, userIdentifier, message));
+        await this.queue.push(action);
     }   
+
+    /**
+     * 
+     * @param {puppeteer.Page} page 
+     * @param {User | SearchResult | String} userIdentifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
+     * @returns {Promise<DirectMessage[]>}
+     */
+    async getChannelMessages(userIdentifier) {
+        if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
+        if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+
+        const action = new Action(() => channel.getChannelMessages(this.page, userIdentifier));
+        const messages = await this.queue.push(action);
+        return messages;
+    }
 
 }
 

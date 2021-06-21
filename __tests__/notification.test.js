@@ -26,6 +26,10 @@ describe("testing notifications", () => {
         await bot.directMessageUser(testingUsername, testingMessage);
     });
 
+    test(`it should get all direct messages from ${testingUsername}`, async () => {
+        await bot.getChannelMessages(testingUsername);
+    });
+
     test("it should logout", async () => {
         await bot.logout();
     });

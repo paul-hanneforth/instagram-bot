@@ -216,7 +216,7 @@ class InstagramBot {
      * 
      * @param {String} username 
      * @param {String} password 
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async login(username, password) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -231,7 +231,7 @@ class InstagramBot {
 
     /**
      * 
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async logout() {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -289,7 +289,7 @@ class InstagramBot {
     /**
      * 
      * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async follow(identifier) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -302,7 +302,7 @@ class InstagramBot {
     /**
      * 
      * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
      async unfollow(identifier) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -343,7 +343,7 @@ class InstagramBot {
     /**
      * 
      * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async goto(identifier) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -399,7 +399,7 @@ class InstagramBot {
     /**
      * 
      * @param {String | Post} identifier this can either be the link of a post or an instance of the Post Class
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async likePost(identifier) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -412,7 +412,7 @@ class InstagramBot {
     /**
      * 
      * @param {String | Post} identifier this can either be the link of a post or an instance of the Post Class
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async unlikePost(identifier) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
@@ -426,7 +426,7 @@ class InstagramBot {
      * 
      * @param {String | Post} postIdentifier this can either be the link of a post or an instance of the Post Class
      * @param {String} comment the text you want to comment on the post
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     async commentPost(postIdentifier, comment) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);

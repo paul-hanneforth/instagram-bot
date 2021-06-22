@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 /**
  * 
  * @param {Number} time 
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const wait = (time) => new Promise((resolve) => setTimeout(resolve, time));
 

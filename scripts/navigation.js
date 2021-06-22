@@ -7,7 +7,7 @@ const { SearchResult, User, Post } = require("../types.js");
 /**
  * 
  * @param {String | SearchResult | User | Post} identifier can either be a link, username, SearchResult, User or Post
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const goto = async (page, identifier) => {
     try {

@@ -79,7 +79,7 @@ const logout = async (page, username) => {
  * 
  * @param {puppeteer.Page} page 
  * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const follow = async (page, identifier) => {
 
@@ -104,7 +104,7 @@ const follow = async (page, identifier) => {
  * 
  * @param {puppeteer.Page} page 
  * @param {String | User | SearchResult} identifier can either be a username, link, an instance of the User class or a SearchResult which links to a User
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const unfollow = async (page, identifier) => {
 
@@ -134,7 +134,7 @@ const unfollow = async (page, identifier) => {
  * @param {puppeteer.Page} page 
  * @param {String | Post} postIdentifier this can either be the link of a post or an instance of the Post Class
  * @param {String} comment the text you want to comment on the post
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const commentPost = async (page, postIdentifier, comment) => {
 
@@ -166,7 +166,7 @@ const commentPost = async (page, postIdentifier, comment) => {
  * 
  * @param {puppeteer.Page} page 
  * @param {String | Post} identifier can either be a link or a Post
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const likePost = async (page, identifier) => {
 
@@ -188,7 +188,7 @@ const likePost = async (page, identifier) => {
  * 
  * @param {puppeteer.Page} page 
  * @param {String | Post} identifier can either be the link to a post or an instance of the Post class
- * @returns {Promise<any>}
+ * @returns {Promise<void>}
  */
 const unlikePost = async (page, identifier) => {
 

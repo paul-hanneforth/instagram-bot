@@ -155,7 +155,7 @@ class InstagramBot {
     }
 
     /**
-     * stops the bot
+     * stops the bot (does the same as 'close')
      * @returns {Promise<void>}
      */
     async stop() {

@@ -60,7 +60,9 @@ class Cache {
      * @returns {Cache}
      */
     addFollowingList(user, following) {
-        const newFollowingLists = this.followingLists.concat(new FollowingList(user, following));
+        const newFollowingLists = this.followingLists
+            .filter(followingList => followingList.user === user) // remove old FollowingList, if present
+            .concat(new FollowingList(user, following));          // add new FollowingList
         const newCache = new Cache(newFollowingLists, this.followerLists);
         return newCache;
     }
@@ -72,28 +74,30 @@ class Cache {
      * @returns {Cache}
      */
     addFollowerList(user, followers) {
-        const newFollowerLists = this.followerLists.concat(new FollowerList(user, followers));
+        const newFollowerLists = this.followerLists
+            .filter(followerList => followerList.user === user) // remove old FollowerList, if present
+            .concat(new FollowerList(user, followers));         // add new FollowerList
         return new Cache(this.followingLists, newFollowerLists);
     }
 
     /**
      * 
      * @param {User} user 
-     * @returns {User[]} list of people who the specified user follows
+     * @returns {FollowingList}
      */
     findFollowingList(user) {
         const selectedFollowingList = this.followingLists.find(followingList => followingList.user.username === user.username);
-        return selectedFollowingList ? selectedFollowingList.following : [];
+        return selectedFollowingList;
     }
 
     /**
      * 
      * @param {User} user 
-     * @returns {User[]} list of people who the specified user follows
+     * @returns {FollowerList}
      */
     findFollowerList(user) {
         const selectedFollowerList = this.followerLists.find(followerList => followerList.user.username === user.username);
-        return selectedFollowerList ? selectedFollowerList.follower : [];
+        return selectedFollowerList;
     }
 
 }

@@ -13,6 +13,7 @@ const { IBError, IBLoginError } = require("./error.js");
 const { errorMessage } = require("./message.js");
 const { SearchResult, User, UserDetails, DirectMessage } = require("./types.js");
 const { Cache } = require("./cache.js");
+const conversion = require("./conversion.js");
 
 class Action {
 
@@ -254,13 +255,22 @@ class InstagramBot {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
 
+        const user = conversion.identifierToUser(identifier);
+
+        // check if cache already stores FollowingList
+        const cacheResult = this.cache.findFollowingList(user);
+        if(cacheResult) {
+            // check if stored FollowingList matches requirements
+            if(cacheResult.following.length >= minLength) {
+                return cacheResult.following;
+            }
+        }
+
         const action = new Action(() => data.getFollowing(this.page, identifier, minLength));
         const following = await this.queue.push(action);
 
-        // store data in cache, if types are compatible
-        if(identifier instanceof User) {
-            this.cache = this.cache.addFollowingList(identifier, following);
-        }
+        // store data in cache
+        this.cache = this.cache.addFollowingList(user, following);
 
         return following;
     }
@@ -274,14 +284,23 @@ class InstagramBot {
     async getFollower(identifier, minLength = 50) {
         if(!this.browser.isConnected()) throw new IBError(errorMessage.browserNotRunning.code, errorMessage.browserNotRunning.message);
         if(!this.authenticated) throw new IBError(errorMessage.notAuthenticated.code, errorMessage.notAuthenticated.message);
+        
+        const user = conversion.identifierToUser(identifier);
+
+        // check if cache already stores FollowerList
+        const cacheResult = this.cache.findFollowerList(user);
+        if(cacheResult) {
+            // check if stored FollowerList matches requirements
+            if(cacheResult.follower.length >= minLength) {
+                return cacheResult.follower;
+            }
+        }
 
         const action = new Action(() => data.getFollower(this.page, identifier, minLength));
         const follower = await this.queue.push(action);
 
         // store data in cache, if types are compatible
-        if(identifier instanceof User) {
-            this.cache = this.cache.addFollowerList(identifier, follower);
-        }
+        this.cache = this.cache.addFollowerList(user, follower);
 
         return follower;
     }

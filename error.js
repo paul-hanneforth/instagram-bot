@@ -75,9 +75,34 @@ class IBPuppeteerError extends IBError {
 
 }
 
+class IBConversionError extends IBError {
+    
+    /**
+     * 
+     * @param {Number} code 
+     * @param {String} message 
+     * @param {*} identifier 
+     * @param {*} target 
+     * @param {Error} [ error ] 
+     * @property {Number} code
+     * @property {String} errorMessage
+     * @property {*} identifier
+     * @property {*} target
+     * @property {Error} [ parentError ]
+     */
+    constructor(code, message, identifier, target, error) {
+        super(code, message, error);
+
+        this.identifier = identifier;
+        this.target = target;
+    }
+
+}
+
 module.exports = {
     IBError,
     IBLoginError,
     IBGotoError,
-    IBPuppeteerError
+    IBPuppeteerError,
+    IBConversionError
 };

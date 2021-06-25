@@ -20,7 +20,9 @@ const errorCode = {
     19: "Failed to click on 'Send' button!",
     20: "Failed to send message!",
     21: "Failed to type message!",
-    22: "Failed to login because Instagram detected unusual login attempts on your account. Please check your inbox to verify your login attempt!"
+    22: "Failed to login because Instagram detected unusual login attempts on your account. Please check your inbox to verify your login attempt!",
+    23: "Failed to convert identifier because it is a SearchResult that links to a Hashtag!",
+    24: "Failed to convert identifier because it didn't match a suitable pattern!"
 };
 const errorTemplate = (code) => {
     return {
@@ -50,7 +52,9 @@ const errorMessage = {
     "failedToClickOnSendButton": errorTemplate(19),
     "failedToSendMessage": errorTemplate(20),
     "failedToTypeMessage": errorTemplate(21),
-    "unusualLoginAttempt": errorTemplate(22)
+    "unusualLoginAttempt": errorTemplate(22),
+    "failedToConvertCauseSearchResultLinksToHashtag": errorTemplate(23),
+    "failedToConvertCauseIdentifierDoesntMatchPattern": errorTemplate(24)
 };
 
 module.exports = { errorMessage };
